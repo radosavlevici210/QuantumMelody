@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/particle-background";
+import CryptoWallet from "../components/crypto-wallet";
 import { Music, Zap, Coins, Play, Pause, Upload, Download, Rocket, DollarSign } from "lucide-react";
 import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
 
@@ -155,7 +156,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 glassmorphism">
+          <TabsList className="grid w-full grid-cols-4 glassmorphism">
             <TabsTrigger value="audio" className="flex items-center gap-2">
               <Music className="w-4 h-4" />
               Audio Tracks
@@ -167,6 +168,10 @@ export default function Dashboard() {
             <TabsTrigger value="crypto" className="flex items-center gap-2">
               <Coins className="w-4 h-4" />
               Crypto Tokens
+            </TabsTrigger>
+            <TabsTrigger value="wallet" className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Wallet
             </TabsTrigger>
           </TabsList>
 
@@ -466,6 +471,10 @@ export default function Dashboard() {
                     </Card>
                   ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="wallet" className="space-y-6">
+            <CryptoWallet />
           </TabsContent>
         </Tabs>
       </div>

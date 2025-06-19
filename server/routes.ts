@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertAudioTrackSchema, insertPhysicsSimulationSchema, insertCryptoTokenSchema } from "@shared/schema";
+import { insertAudioTrackSchema, insertPhysicsSimulationSchema, insertCryptoTokenSchema, insertCryptoWalletSchema, insertTransactionSchema, insertExchangeOrderSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -247,6 +247,285 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting crypto token:", error);
       res.status(500).json({ message: "Failed to delete crypto token" });
+    }
+  });
+
+  // Crypto Wallet Routes
+  app.get("/api/wallets", async (req, res) => {
+    try {
+      const wallets = await storage.getAllCryptoWallets();
+      res.json(wallets);
+    } catch (error) {
+      console.error("Error fetching wallets:", error);
+      res.status(500).json({ message: "Failed to fetch wallets" });
+    }
+  });
+
+  app.get("/api/wallets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid wallet ID" });
+      }
+      const wallet = await storage.getCryptoWallet(id);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+      res.json(wallet);
+    } catch (error) {
+      console.error("Error fetching wallet:", error);
+      res.status(500).json({ message: "Failed to fetch wallet" });
+    }
+  });
+
+  app.get("/api/wallets/address/:address", async (req, res) => {
+    try {
+      const address = req.params.address;
+      const wallet = await storage.getCryptoWalletByAddress(address);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+      res.json(wallet);
+    } catch (error) {
+      console.error("Error fetching wallet by address:", error);
+      res.status(500).json({ message: "Failed to fetch wallet" });
+    }
+  });
+
+  app.post("/api/wallets", async (req, res) => {
+    try {
+      const validatedData = insertCryptoWalletSchema.parse(req.body);
+      const wallet = await storage.createCryptoWallet(validatedData);
+      res.status(201).json(wallet);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating wallet:", error);
+      res.status(500).json({ message: "Failed to create wallet" });
+    }
+  });
+
+  app.put("/api/wallets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid wallet ID" });
+      }
+      const validatedData = insertCryptoWalletSchema.partial().parse(req.body);
+      const wallet = await storage.updateCryptoWallet(id, validatedData);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+      res.json(wallet);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating wallet:", error);
+      res.status(500).json({ message: "Failed to update wallet" });
+    }
+  });
+
+  // Transaction Routes
+  app.get("/api/transactions", async (req, res) => {
+    try {
+      const transactions = await storage.getAllTransactions();
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.get("/api/transactions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+      const transaction = await storage.getTransaction(id);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+      res.json(transaction);
+    } catch (error) {
+      console.error("Error fetching transaction:", error);
+      res.status(500).json({ message: "Failed to fetch transaction" });
+    }
+  });
+
+  app.get("/api/transactions/hash/:hash", async (req, res) => {
+    try {
+      const hash = req.params.hash;
+      const transaction = await storage.getTransactionByHash(hash);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+      res.json(transaction);
+    } catch (error) {
+      console.error("Error fetching transaction by hash:", error);
+      res.status(500).json({ message: "Failed to fetch transaction" });
+    }
+  });
+
+  app.post("/api/transactions", async (req, res) => {
+    try {
+      const validatedData = insertTransactionSchema.parse(req.body);
+      const transaction = await storage.createTransaction(validatedData);
+      res.status(201).json(transaction);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating transaction:", error);
+      res.status(500).json({ message: "Failed to create transaction" });
+    }
+  });
+
+  app.put("/api/transactions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+      const validatedData = insertTransactionSchema.partial().parse(req.body);
+      const transaction = await storage.updateTransaction(id, validatedData);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+      res.json(transaction);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating transaction:", error);
+      res.status(500).json({ message: "Failed to update transaction" });
+    }
+  });
+
+  // Exchange Order Routes
+  app.get("/api/exchange-orders", async (req, res) => {
+    try {
+      const orders = await storage.getAllExchangeOrders();
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching exchange orders:", error);
+      res.status(500).json({ message: "Failed to fetch exchange orders" });
+    }
+  });
+
+  app.get("/api/exchange-orders/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+      const order = await storage.getExchangeOrder(id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error("Error fetching exchange order:", error);
+      res.status(500).json({ message: "Failed to fetch exchange order" });
+    }
+  });
+
+  app.post("/api/exchange-orders", async (req, res) => {
+    try {
+      const validatedData = insertExchangeOrderSchema.parse(req.body);
+      const order = await storage.createExchangeOrder(validatedData);
+      res.status(201).json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating exchange order:", error);
+      res.status(500).json({ message: "Failed to create exchange order" });
+    }
+  });
+
+  app.put("/api/exchange-orders/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+      const validatedData = insertExchangeOrderSchema.partial().parse(req.body);
+      const order = await storage.updateExchangeOrder(id, validatedData);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating exchange order:", error);
+      res.status(500).json({ message: "Failed to update exchange order" });
+    }
+  });
+
+  // Transfer endpoint
+  app.post("/api/transfer", async (req, res) => {
+    try {
+      const { fromAddress, toAddress, amount, tokenId } = req.body;
+      
+      if (!fromAddress || !toAddress || !amount) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Generate a mock transaction hash for demo purposes
+      const hash = `0x${Math.random().toString(16).substr(2, 64)}`;
+      
+      const transaction = await storage.createTransaction({
+        hash,
+        fromAddress,
+        toAddress,
+        amount: amount.toString(),
+        tokenId: tokenId || null,
+        blockchain: "ethereum",
+        status: "confirmed",
+        transactionType: "transfer",
+        metadata: { timestamp: new Date().toISOString() }
+      });
+
+      res.status(201).json(transaction);
+    } catch (error) {
+      console.error("Error processing transfer:", error);
+      res.status(500).json({ message: "Failed to process transfer" });
+    }
+  });
+
+  // Exchange endpoint
+  app.post("/api/exchange", async (req, res) => {
+    try {
+      const { walletId, fromTokenId, toTokenId, fromAmount } = req.body;
+      
+      if (!walletId || !fromTokenId || !toTokenId || !fromAmount) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Mock exchange rate calculation
+      const exchangeRate = Math.random() * 2 + 0.5; // Random rate between 0.5 and 2.5
+      const toAmount = (parseFloat(fromAmount) * exchangeRate).toString();
+
+      const order = await storage.createExchangeOrder({
+        walletId: parseInt(walletId),
+        fromTokenId: parseInt(fromTokenId),
+        toTokenId: parseInt(toTokenId),
+        fromAmount: fromAmount.toString(),
+        toAmount,
+        exchangeRate: exchangeRate.toString(),
+        status: "filled",
+        orderType: "market"
+      });
+
+      res.status(201).json(order);
+    } catch (error) {
+      console.error("Error processing exchange:", error);
+      res.status(500).json({ message: "Failed to process exchange" });
     }
   });
 
