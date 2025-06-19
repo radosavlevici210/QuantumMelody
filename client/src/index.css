@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --background: hsl(217, 33%, 6%);
+  --foreground: hsl(0, 0%, 100%);
+  --muted: hsl(215, 28%, 17%);
+  --muted-foreground: hsl(217, 10%, 64%);
+  --popover: hsl(217, 33%, 6%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --card: hsl(215, 28%, 17%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --border: hsl(190, 100%, 50%);
+  --input: hsl(215, 28%, 17%);
+  --primary: hsl(190, 100%, 50%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(215, 28%, 17%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(215, 28%, 17%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(60, 9%, 98%);
+  --ring: hsl(190, 100%, 50%);
+  --radius: 0.5rem;
+
+  /* Custom quantum theme colors */
+  --quantum-dark: hsl(217, 33%, 6%);
+  --quantum-gray: hsl(215, 28%, 17%);
+  --quantum-blue: hsl(190, 100%, 50%);
+  --plasma-purple: hsl(248, 53%, 58%);
+  --neon-green: hsl(120, 100%, 45%);
+  --cyber-pink: hsl(332, 100%, 59%);
+}
+
+.dark {
+  --background: hsl(217, 33%, 6%);
+  --foreground: hsl(0, 0%, 100%);
+  --muted: hsl(215, 28%, 17%);
+  --muted-foreground: hsl(217, 10%, 64%);
+  --popover: hsl(217, 33%, 6%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --card: hsl(215, 28%, 17%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --border: hsl(190, 100%, 50%);
+  --input: hsl(215, 28%, 17%);
+  --primary: hsl(190, 100%, 50%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(215, 28%, 17%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(215, 28%, 17%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 62%, 31%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(190, 100%, 50%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    background: var(--quantum-dark);
+    color: var(--foreground);
+    overflow-x: hidden;
+  }
+
+  .font-quantum {
+    font-family: 'Orbitron', monospace;
+  }
+}
+
+@layer components {
+  .glassmorphism {
+    background: rgba(28, 33, 40, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+  }
+
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: linear-gradient(45deg, var(--quantum-blue), var(--plasma-purple));
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .waveform-bar {
+    transition: height 0.1s ease;
+  }
+
+  .gradient-quantum {
+    background: linear-gradient(135deg, var(--quantum-blue), var(--plasma-purple));
+  }
+
+  .gradient-neon {
+    background: linear-gradient(135deg, var(--neon-green), var(--quantum-blue));
+  }
+
+  .gradient-cyber {
+    background: linear-gradient(135deg, var(--cyber-pink), var(--plasma-purple));
+  }
+
+  .text-gradient-quantum {
+    background: linear-gradient(135deg, var(--quantum-blue), var(--neon-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-particle-float {
+    animation: particle-float 20s linear infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+  100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.8), 0 0 60px rgba(123, 104, 238, 0.4); }
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(100vh) translateX(0px); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--quantum-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--quantum-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green);
+}
