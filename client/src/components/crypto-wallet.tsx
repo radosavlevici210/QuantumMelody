@@ -82,6 +82,33 @@ export default function CryptoWallet() {
 
   const { toast } = useToast();
 
+  const refreshBalance = async () => {
+    if (!selectedWallet) return;
+    
+    try {
+      const response = await fetch(`/api/wallets/${selectedWallet.id}/refresh-balance`, {
+        method: 'POST'
+      });
+      
+      if (response.ok) {
+        const updatedWallet = await response.json();
+        setWallets(wallets.map(w => w.id === updatedWallet.id ? updatedWallet : w));
+        setSelectedWallet(updatedWallet);
+        toast({
+          title: "Balance updated",
+          description: "Wallet balance refreshed from blockchain",
+        });
+      }
+    } catch (err) {
+      console.error('Error refreshing balance:', err);
+      toast({
+        title: "Error",
+        description: "Failed to refresh balance",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -126,14 +153,6 @@ export default function CryptoWallet() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          address: `0x${Math.random().toString(16).substr(2, 40)}`,
-          privateKey: `0x${Math.random().toString(16).substr(2, 64)}`,
-          publicKey: `0x${Math.random().toString(16).substr(2, 128)}`,
-          mnemonic: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-          blockchain: 'ethereum',
-          balance: '0'
-        }),
       });
 
       if (response.ok) {
@@ -142,7 +161,7 @@ export default function CryptoWallet() {
         setSelectedWallet(newWallet);
         toast({
           title: "Wallet created",
-          description: "New wallet has been generated successfully",
+          description: "Real Ethereum wallet generated with blockchain integration",
         });
       }
     } catch (err) {
@@ -274,7 +293,7 @@ export default function CryptoWallet() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Wallet className="h-8 w-8" />
-          Crypto Wallet
+          Production Blockchain Wallet
         </h1>
         <Button onClick={generateWallet} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -346,8 +365,18 @@ export default function CryptoWallet() {
                 
                 <div>
                   <Label>Balance</Label>
-                  <div className="text-2xl font-bold text-green-600 mt-1">
-                    {selectedWallet.balance} ETH
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="text-2xl font-bold text-green-600">
+                      {selectedWallet.balance} ETH
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={refreshBalance}
+                      disabled={loading}
+                    >
+                      Refresh
+                    </Button>
                   </div>
                 </div>
 
