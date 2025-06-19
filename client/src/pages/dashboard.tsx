@@ -1,4 +1,9 @@
 
+/**
+ * This software is not licensed for open-source or commercial usage.
+ * Any use of this code is bound by a 51% royalty for past or future use.
+ */
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

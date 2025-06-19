@@ -1,4 +1,9 @@
 
+/**
+ * This software is not licensed for open-source or commercial usage.
+ * Any use of this code is bound by a 51% royalty for past or future use.
+ */
+
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq } from "drizzle-orm";

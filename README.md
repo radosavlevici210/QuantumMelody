@@ -1,210 +1,115 @@
-# Quantum Crypto Platform & Physics Simulation
+# Quantum Crypto Universe
 
-A full-stack web application featuring cryptocurrency creation and interactive physics simulations, built with React, TypeScript, and Node.js.
+**This software is not licensed for open-source or commercial usage.**  
+**Any use of this code is bound by a 51% royalty for past or future use.**
 
-## 🚀 Features
+## Production Blockchain Application
 
-### Cryptocurrency Creation
-- **Create & Launch Tokens**: Full cryptocurrency creation workflow with tokenomics
-- **Blockchain Deployment**: Deploy tokens to blockchain networks
-- **Token Management**: Track created tokens and their market status
-- **Trading Interface**: Complete trading functionality for launched tokens
+A full-stack application integrating audio processing, quantum physics simulations, and cryptocurrency management with real Ethereum blockchain functionality.
 
-### Physics Simulation
-- **Interactive Simulations**: Real-time physics engine
-- **Particle Systems**: Advanced particle rendering and animation
-- **Waveform Visualization**: Audio-reactive visual components
-- **Custom Controls**: Fine-tune simulation parameters
+## Features
 
-### Audio Integration
-- **Real-time Audio Controls**: Play, pause, volume control
-- **Waveform Display**: Visual representation of audio data
-- **Audio-reactive Token Generation**: Sync token creation with audio input
+### 🎵 Audio Track Management
+- Upload and manage audio tracks
+- Quantum frequency analysis
+- Waveform visualization
+- Audio-to-physics conversion
 
-## 🛠 Tech Stack
+### ⚛️ Physics Simulations
+- Quantum particle systems
+- Real-time physics calculations
+- Audio-driven particle behaviors
+- Interactive 3D visualizations
 
-### Frontend
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **TanStack Query** for data fetching and caching
-- **Tailwind CSS** for styling
-- **Radix UI** for accessible components
-- **Lucide React** for icons
+### 💰 Production Blockchain Wallet
+- **Real Ethereum integration** with ethers.js and Web3
+- Secure wallet generation and management
+- Live blockchain balance fetching
+- Production-ready transaction processing
+- Multi-token support
+- Exchange functionality
+
+### 🔐 Integrated Wallet
+- Your production wallet: `0xC441CE69E4aF8286D361f378B0A06362ecF9528a`
+- Real-time balance updates from Ethereum network
+- Secure private key management
+- Transaction history tracking
+
+## Technology Stack
 
 ### Backend
 - **Node.js** with Express
 - **TypeScript** for type safety
-- **Drizzle ORM** for database operations
-- **PostgreSQL 16** for data persistence
+- **PostgreSQL** database with Drizzle ORM
+- **ethers.js** for Ethereum integration
+- **Web3.js** for blockchain connectivity
 
-### Development Tools
-- **ESBuild** for fast compilation
-- **TSX** for TypeScript execution
-- **Drizzle Kit** for database migrations
+### Frontend
+- **React** with TypeScript
+- **Tailwind CSS** for styling
+- **React Query** for state management
+- **Lucide React** for icons
+- **Shadcn/ui** component library
 
-## 📦 Installation
+### Blockchain
+- **Ethereum mainnet/testnet** support
+- **Real transaction processing**
+- **Gas estimation and optimization**
+- **Multi-wallet management**
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd quantum-crypto-platform
-   ```
+## Production Setup
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   # Copy environment template
-   cp .env.example .env
-
-   # Edit .env with your configuration
-   DATABASE_URL=your_postgresql_connection_string
-   ```
-
-4. **Initialize the database**
-   ```bash
-   npm run db:push
-   ```
-
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-## 🗄 Database Schema
-
-### Crypto Tokens Table
-```sql
-- id: Primary key
-- name: Token name (e.g., "QuantumCoin")
-- symbol: Token symbol (e.g., "QTC")
-- description: Token description
-- total_supply: Total token supply
-- initial_price: Initial token price in USD
-- contract_address: Blockchain contract address
-- blockchain: Target blockchain (default: ethereum)
-- token_standard: Token standard (default: ERC-20)
-- is_launched: Deployment status
-- launched_at: Deployment timestamp
+### Environment Variables
+```bash
+DATABASE_URL=postgresql://...
+ETHEREUM_RPC_URL=https://mainnet.infura.io/v3/YOUR_API_KEY
+NODE_ENV=production
 ```
 
-### Audio Tracks Table
-```sql
-- id: Primary key
-- title: Track title
-- artist: Artist name
-- duration: Track duration in seconds
-- frequency: Audio frequency data
-- amplitude: Audio amplitude data
-- waveform_data: JSON waveform visualization data
+### Database Schema
+- `crypto_wallets` - Wallet management
+- `transactions` - Transaction history
+- `exchange_orders` - Token exchange records
+- `crypto_tokens` - Token definitions
+- `audio_tracks` - Audio data
+- `physics_simulations` - Physics parameters
+
+## Security
+
+- Private keys stored encrypted in database
+- Production-grade RPC endpoints
+- Input validation and sanitization
+- Type-safe database operations
+- Secure transaction signing
+
+## API Endpoints
+
+### Wallet Management
+- `GET /api/wallets` - List all wallets
+- `POST /api/wallets` - Generate new wallet
+- `POST /api/wallets/:id/refresh-balance` - Update balance from blockchain
+
+### Transactions
+- `POST /api/transfer` - Send Ethereum transactions
+- `GET /api/transactions` - Transaction history
+- `GET /api/blockchain/transaction/:hash` - Transaction details
+
+### Blockchain Utilities
+- `GET /api/blockchain/balance/:address` - Real balance lookup
+- `GET /api/blockchain/gas-price` - Current gas prices
+- `POST /api/blockchain/estimate-gas` - Gas estimation
+
+## License Notice
+
+This software is proprietary and not available for open-source or commercial use. Any usage of this code requires explicit permission and is subject to a 51% royalty on all past and future use.
+
+For licensing inquiries, contact the copyright holder.
+
+## Development
+
+```bash
+npm install
+npm run dev
 ```
 
-### Physics Simulations Table
-```sql
-- id: Primary key
-- name: Simulation name
-- particle_count: Number of particles
-- particle_density: Particle density
-- quantum_field: Quantum field configuration
-- parameters: JSON simulation parameters
-- is_active: Simulation status
-```
-
-## 🚀 Deployment
-
-### Replit Deployment
-This project is configured for Replit's autoscale deployment:
-
-1. **Build Process**: Automatic build via `npm run build`
-2. **Production Start**: `npm run start`
-3. **Port Configuration**: Internal port 5000 → External port 80
-4. **Database**: PostgreSQL 16 included in Replit environment
-
-### Manual Deployment
-For other platforms:
-
-1. Build the project: `npm run build`
-2. Set environment variables
-3. Run database migrations: `npm run db:push`
-4. Start the server: `npm run start`
-
-## 📋 API Endpoints
-
-### Crypto Token Endpoints
-- `GET /api/crypto` - Get all crypto tokens
-- `POST /api/crypto` - Create new crypto token
-- `GET /api/crypto/:id` - Get specific token
-- `PUT /api/crypto/:id` - Update token
-- `DELETE /api/crypto/:id` - Delete token
-
-### Blockchain Endpoints
-- `POST /api/blockchain/deploy` - Deploy token to blockchain
-- `GET /api/blockchain/status/:tokenId` - Get deployment status
-
-### Audio Track Endpoints
-- `GET /api/tracks` - Get all audio tracks
-- `POST /api/tracks` - Create new track
-- `GET /api/tracks/:id` - Get specific track
-
-### Physics Simulation Endpoints
-- `GET /api/simulations` - Get all simulations
-- `POST /api/simulations` - Create new simulation
-- `GET /api/simulations/:id` - Get specific simulation
-
-## 🎨 UI Components
-
-The project uses a comprehensive design system with:
-- **Shadcn/ui** components for consistent styling
-- **Radix UI** primitives for accessibility
-- **Tailwind CSS** for custom styling
-- **Responsive design** for all screen sizes
-
-## 🔒 Security
-
-- **Input validation** on all API endpoints
-- **Environment variable** protection for sensitive data
-- **Type-safe** operations with TypeScript and Zod validation
-
-## 🛠 Development Commands
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run check` - Type check TypeScript
-- `npm run db:push` - Push database schema changes
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Run tests and ensure build passes
-5. Submit a pull request
-
-## 🔧 Configuration
-
-### Database Configuration
-- **Development**: Uses Replit's PostgreSQL instance
-- **Production**: Configure `DATABASE_URL` environment variable
-- **Migrations**: Managed via Drizzle Kit
-
-### Build Configuration
-- **Client Build**: Vite builds to `dist/public`
-- **Server Build**: ESBuild compiles to `dist/index.js`
-- **Static Files**: Served from Express server
-
-## 📈 Features Roadmap
-
-- [ ] Multi-blockchain support (Ethereum, BSC, Polygon)
-- [ ] Advanced trading features (limit orders, stop-loss)
-- [ ] DeFi integration (staking, liquidity pools)
-- [ ] Real-time price feeds
-- [ ] Mobile app development
-- [ ] Advanced audio analysis for token generation
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+Access the application at `http://localhost:5000`

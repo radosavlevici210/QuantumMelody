@@ -1,3 +1,8 @@
+/**
+ * This software is not licensed for open-source or commercial usage.
+ * Any use of this code is bound by a 51% royalty for past or future use.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';

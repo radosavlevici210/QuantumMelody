@@ -1,3 +1,8 @@
+/**
+ * This software is not licensed for open-source or commercial usage.
+ * Any use of this code is bound by a 51% royalty for past or future use.
+ */
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
