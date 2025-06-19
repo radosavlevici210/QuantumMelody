@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,14 +10,20 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/particle-background";
-import { Music, Zap, Sparkles, Play, Pause, Upload, Download } from "lucide-react";
-import type { AudioTrack, PhysicsSimulation, NftCollection } from "@shared/schema";
+import { Music, Zap, Coins, Play, Pause, Upload, Download, Rocket, DollarSign } from "lucide-react";
+import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("audio");
   const [audioForm, setAudioForm] = useState({ title: "", artist: "", duration: 0 });
   const [simulationForm, setSimulationForm] = useState({ name: "", particleCount: 1000 });
-  const [nftForm, setNftForm] = useState({ name: "", description: "" });
+  const [cryptoForm, setCryptoForm] = useState({ 
+    name: "", 
+    symbol: "", 
+    description: "", 
+    totalSupply: "1000000", 
+    initialPrice: "0.01" 
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -80,33 +87,56 @@ export default function Dashboard() {
     },
   });
 
-  // NFT Collections
-  const { data: nfts, isLoading: nftsLoading } = useQuery<NftCollection[]>({
-    queryKey: ["nfts"],
+  // Crypto Tokens
+  const { data: cryptoTokens, isLoading: cryptoLoading } = useQuery<CryptoToken[]>({
+    queryKey: ["crypto"],
     queryFn: async () => {
-      const response = await fetch("/api/nfts");
-      if (!response.ok) throw new Error("Failed to fetch NFTs");
+      const response = await fetch("/api/crypto");
+      if (!response.ok) throw new Error("Failed to fetch crypto tokens");
       return response.json();
     },
   });
 
-  const createNFTMutation = useMutation({
-    mutationFn: async (data: typeof nftForm) => {
-      const response = await fetch("/api/nfts", {
+  const createCryptoMutation = useMutation({
+    mutationFn: async (data: typeof cryptoForm) => {
+      const response = await fetch("/api/crypto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          totalSupply: parseFloat(data.totalSupply),
+          initialPrice: parseFloat(data.initialPrice)
+        }),
       });
-      if (!response.ok) throw new Error("Failed to create NFT");
+      if (!response.ok) throw new Error("Failed to create crypto token");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nfts"] });
-      setNftForm({ name: "", description: "" });
-      toast({ title: "Success", description: "NFT collection created successfully!" });
+      queryClient.invalidateQueries({ queryKey: ["crypto"] });
+      setCryptoForm({ name: "", symbol: "", description: "", totalSupply: "1000000", initialPrice: "0.01" });
+      toast({ title: "Success", description: "Crypto token created successfully!" });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to create NFT", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to create crypto token", variant: "destructive" });
+    },
+  });
+
+  const deployTokenMutation = useMutation({
+    mutationFn: async (tokenId: number) => {
+      const response = await fetch("/api/blockchain/deploy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenId }),
+      });
+      if (!response.ok) throw new Error("Failed to deploy token");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crypto"] });
+      toast({ title: "Success", description: "Token deployed to blockchain successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to deploy token", variant: "destructive" });
     },
   });
 
@@ -117,10 +147,10 @@ export default function Dashboard() {
       <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 font-quantum">
-            Quantum Audio Universe
+            Quantum Crypto Universe
           </h1>
           <p className="text-lg text-slate-300">
-            Transform audio into immersive physics simulations and digital collectibles
+            Transform audio into quantum physics simulations and launch cryptocurrencies
           </p>
         </div>
 
@@ -134,9 +164,9 @@ export default function Dashboard() {
               <Zap className="w-4 h-4" />
               Physics Sims
             </TabsTrigger>
-            <TabsTrigger value="nfts" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              NFT Gallery
+            <TabsTrigger value="crypto" className="flex items-center gap-2">
+              <Coins className="w-4 h-4" />
+              Crypto Tokens
             </TabsTrigger>
           </TabsList>
 
@@ -305,47 +335,80 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="nfts" className="space-y-6">
+          <TabsContent value="crypto" className="space-y-6">
             <Card className="glassmorphism">
               <CardHeader>
-                <CardTitle className="text-white">Create NFT Collection</CardTitle>
-                <CardDescription>Mint your audio-physics creations as NFTs</CardDescription>
+                <CardTitle className="text-white">Create Cryptocurrency Token</CardTitle>
+                <CardDescription>Launch your quantum-powered cryptocurrency</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="nft-name" className="text-white">Collection Name</Label>
+                    <Label htmlFor="crypto-name" className="text-white">Token Name</Label>
                     <Input
-                      id="nft-name"
-                      value={nftForm.name}
-                      onChange={(e) => setNftForm({ ...nftForm, name: e.target.value })}
-                      placeholder="NFT collection name"
+                      id="crypto-name"
+                      value={cryptoForm.name}
+                      onChange={(e) => setCryptoForm({ ...cryptoForm, name: e.target.value })}
+                      placeholder="QuantumCoin"
                       className="bg-black/20 border-cyan-500/30 text-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="nft-description" className="text-white">Description</Label>
+                    <Label htmlFor="crypto-symbol" className="text-white">Symbol</Label>
                     <Input
-                      id="nft-description"
-                      value={nftForm.description}
-                      onChange={(e) => setNftForm({ ...nftForm, description: e.target.value })}
-                      placeholder="Collection description"
+                      id="crypto-symbol"
+                      value={cryptoForm.symbol}
+                      onChange={(e) => setCryptoForm({ ...cryptoForm, symbol: e.target.value.toUpperCase() })}
+                      placeholder="QTC"
+                      className="bg-black/20 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="crypto-supply" className="text-white">Total Supply</Label>
+                    <Input
+                      id="crypto-supply"
+                      type="number"
+                      value={cryptoForm.totalSupply}
+                      onChange={(e) => setCryptoForm({ ...cryptoForm, totalSupply: e.target.value })}
+                      placeholder="1000000"
+                      className="bg-black/20 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="crypto-price" className="text-white">Initial Price (USD)</Label>
+                    <Input
+                      id="crypto-price"
+                      type="number"
+                      step="0.001"
+                      value={cryptoForm.initialPrice}
+                      onChange={(e) => setCryptoForm({ ...cryptoForm, initialPrice: e.target.value })}
+                      placeholder="0.01"
+                      className="bg-black/20 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="crypto-description" className="text-white">Description</Label>
+                    <Input
+                      id="crypto-description"
+                      value={cryptoForm.description}
+                      onChange={(e) => setCryptoForm({ ...cryptoForm, description: e.target.value })}
+                      placeholder="A quantum-powered cryptocurrency..."
                       className="bg-black/20 border-cyan-500/30 text-white"
                     />
                   </div>
                 </div>
                 <Button
-                  onClick={() => createNFTMutation.mutate(nftForm)}
-                  disabled={createNFTMutation.isPending || !nftForm.name}
-                  className="w-full bg-gradient-to-r from-pink-500 to-orange-600 hover:from-pink-600 hover:to-orange-700"
+                  onClick={() => createCryptoMutation.mutate(cryptoForm)}
+                  disabled={createCryptoMutation.isPending || !cryptoForm.name || !cryptoForm.symbol}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 >
-                  {createNFTMutation.isPending ? "Minting..." : "Mint NFT Collection"}
+                  {createCryptoMutation.isPending ? "Creating..." : "Create Token"}
                 </Button>
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {nftsLoading
+              {cryptoLoading
                 ? Array.from({ length: 6 }, (_, i) => (
                     <Card key={i} className="glassmorphism">
                       <CardContent className="pt-6">
@@ -355,27 +418,50 @@ export default function Dashboard() {
                       </CardContent>
                     </Card>
                   ))
-                : nfts?.map((nft) => (
-                    <Card key={nft.id} className="glassmorphism hover:border-pink-400/50 transition-colors">
+                : cryptoTokens?.map((token) => (
+                    <Card key={token.id} className="glassmorphism hover:border-green-400/50 transition-colors">
                       <CardHeader>
-                        <CardTitle className="text-white text-lg">{nft.name}</CardTitle>
-                        <CardDescription>{nft.description}</CardDescription>
+                        <CardTitle className="text-white text-lg">{token.name}</CardTitle>
+                        <CardDescription>{token.symbol} • {token.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex justify-between items-center mb-3">
-                          {nft.tokenId && (
-                            <Badge variant="secondary" className="text-xs">
-                              #{nft.tokenId}
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-300">Supply:</span>
+                            <Badge variant="secondary">{Number(token.totalSupply).toLocaleString()}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-300">Price:</span>
+                            <Badge variant="outline" className="text-green-400">
+                              ${token.initialPrice}
                             </Badge>
-                          )}
-                          <Badge variant={nft.mintedAt ? "default" : "outline"} className="text-pink-400">
-                            {nft.mintedAt ? "Minted" : "Draft"}
-                          </Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-300">Status:</span>
+                            <Badge variant={token.isLaunched ? "default" : "outline"} className="text-green-400">
+                              {token.isLaunched ? "Deployed" : "Draft"}
+                            </Badge>
+                          </div>
+                          <div className="flex gap-2">
+                            {!token.isLaunched ? (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => deployTokenMutation.mutate(token.id)}
+                                disabled={deployTokenMutation.isPending}
+                              >
+                                <Rocket className="w-4 h-4 mr-1" />
+                                Deploy
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="outline" className="flex-1">
+                                <DollarSign className="w-4 h-4 mr-1" />
+                                Trade
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <Button size="sm" variant="outline" className="w-full">
-                          <Sparkles className="w-4 h-4 mr-1" />
-                          View Details
-                        </Button>
                       </CardContent>
                     </Card>
                   ))}

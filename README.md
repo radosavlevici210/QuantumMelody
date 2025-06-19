@@ -1,15 +1,14 @@
+# Quantum Crypto Platform & Physics Simulation
 
-# NFT Marketplace & Physics Simulation Platform
-
-A full-stack web application featuring NFT marketplace functionality and interactive physics simulations, built with React, TypeScript, and Node.js.
+A full-stack web application featuring cryptocurrency creation and interactive physics simulations, built with React, TypeScript, and Node.js.
 
 ## 🚀 Features
 
-### NFT Marketplace
-- **Create & Mint NFT Collections**: Full NFT creation workflow with metadata
-- **Buy/Sell NFTs**: Complete marketplace functionality
-- **User Profiles**: Track owned and created NFTs
-- **Transaction History**: Complete audit trail of all NFT activities
+### Cryptocurrency Creation
+- **Create & Launch Tokens**: Full cryptocurrency creation workflow with tokenomics
+- **Blockchain Deployment**: Deploy tokens to blockchain networks
+- **Token Management**: Track created tokens and their market status
+- **Trading Interface**: Complete trading functionality for launched tokens
 
 ### Physics Simulation
 - **Interactive Simulations**: Real-time physics engine
@@ -17,10 +16,10 @@ A full-stack web application featuring NFT marketplace functionality and interac
 - **Waveform Visualization**: Audio-reactive visual components
 - **Custom Controls**: Fine-tune simulation parameters
 
-### Audio Features
+### Audio Integration
 - **Real-time Audio Controls**: Play, pause, volume control
 - **Waveform Display**: Visual representation of audio data
-- **Audio-reactive Animations**: Sync visuals with audio input
+- **Audio-reactive Token Generation**: Sync token creation with audio input
 
 ## 🛠 Tech Stack
 
@@ -43,36 +42,12 @@ A full-stack web application featuring NFT marketplace functionality and interac
 - **TSX** for TypeScript execution
 - **Drizzle Kit** for database migrations
 
-## 📁 Project Structure
-
-```
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── lib/            # Utility functions
-│   │   └── pages/          # Application pages
-├── server/                 # Backend Express server
-│   ├── index.ts           # Server entry point
-│   ├── routes.ts          # API route definitions
-│   └── storage.ts         # Database operations
-├── shared/                # Shared TypeScript schemas
-└── README.md
-```
-
-## 🚦 Getting Started
-
-### Prerequisites
-- Node.js 20+
-- PostgreSQL 16
-- npm or yarn
-
-### Installation
+## 📦 Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
-   cd <project-name>
+   git clone <repository-url>
+   cd quantum-crypto-platform
    ```
 
 2. **Install dependencies**
@@ -81,62 +56,61 @@ A full-stack web application featuring NFT marketplace functionality and interac
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file or use Replit Secrets:
-   ```
-   DATABASE_URL=postgresql://username:password@localhost:5432/dbname
-   NODE_ENV=development
+   ```bash
+   # Copy environment template
+   cp .env.example .env
+
+   # Edit .env with your configuration
+   DATABASE_URL=your_postgresql_connection_string
    ```
 
-4. **Set up the database**
+4. **Initialize the database**
    ```bash
    npm run db:push
    ```
 
-5. **Start the development server**
+5. **Start development server**
    ```bash
    npm run dev
    ```
 
-The application will be available at `http://localhost:5000`
-
-## 📝 Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run db:push` - Push database schema changes
-- `npm run db:generate` - Generate database migrations
-
 ## 🗄 Database Schema
 
-### NFTs Table
+### Crypto Tokens Table
 ```sql
 - id: Primary key
-- name: NFT collection name
-- description: Collection description
-- price: NFT price
-- image_url: URL to NFT image
-- creator_id: User who created the NFT
-- owner_id: Current owner
-- created_at: Creation timestamp
+- name: Token name (e.g., "QuantumCoin")
+- symbol: Token symbol (e.g., "QTC")
+- description: Token description
+- total_supply: Total token supply
+- initial_price: Initial token price in USD
+- contract_address: Blockchain contract address
+- blockchain: Target blockchain (default: ethereum)
+- token_standard: Token standard (default: ERC-20)
+- is_launched: Deployment status
+- launched_at: Deployment timestamp
 ```
 
-### Users Table
+### Audio Tracks Table
 ```sql
 - id: Primary key
-- username: User's display name
-- email: User's email address
-- wallet_address: Blockchain wallet address
-- created_at: Registration timestamp
+- title: Track title
+- artist: Artist name
+- duration: Track duration in seconds
+- frequency: Audio frequency data
+- amplitude: Audio amplitude data
+- waveform_data: JSON waveform visualization data
 ```
 
 ### Physics Simulations Table
 ```sql
 - id: Primary key
 - name: Simulation name
-- parameters: JSON configuration
-- user_id: Creator of the simulation
-- created_at: Creation timestamp
+- particle_count: Number of particles
+- particle_density: Particle density
+- quantum_field: Quantum field configuration
+- parameters: JSON simulation parameters
+- is_active: Simulation status
 ```
 
 ## 🚀 Deployment
@@ -157,44 +131,28 @@ For other platforms:
 3. Run database migrations: `npm run db:push`
 4. Start the server: `npm run start`
 
-## 🔧 Configuration
-
-### Database Configuration
-- **Development**: Uses Replit's PostgreSQL instance
-- **Production**: Configure `DATABASE_URL` environment variable
-- **Migrations**: Managed via Drizzle Kit
-
-### Build Configuration
-- **Client Build**: Vite builds to `dist/public`
-- **Server Build**: ESBuild compiles to `dist/index.js`
-- **Static Files**: Served from Express server
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Run tests and ensure build passes
-5. Submit a pull request
-
 ## 📋 API Endpoints
 
-### NFT Endpoints
-- `GET /api/nfts` - Get all NFTs
-- `POST /api/nfts` - Create new NFT
-- `GET /api/nfts/:id` - Get specific NFT
-- `PUT /api/nfts/:id` - Update NFT
-- `DELETE /api/nfts/:id` - Delete NFT
+### Crypto Token Endpoints
+- `GET /api/crypto` - Get all crypto tokens
+- `POST /api/crypto` - Create new crypto token
+- `GET /api/crypto/:id` - Get specific token
+- `PUT /api/crypto/:id` - Update token
+- `DELETE /api/crypto/:id` - Delete token
 
-### User Endpoints
-- `GET /api/users` - Get all users
-- `POST /api/users` - Create new user
-- `GET /api/users/:id` - Get specific user
+### Blockchain Endpoints
+- `POST /api/blockchain/deploy` - Deploy token to blockchain
+- `GET /api/blockchain/status/:tokenId` - Get deployment status
+
+### Audio Track Endpoints
+- `GET /api/tracks` - Get all audio tracks
+- `POST /api/tracks` - Create new track
+- `GET /api/tracks/:id` - Get specific track
 
 ### Physics Simulation Endpoints
-- `GET /api/physics-simulations` - Get all simulations
-- `POST /api/physics-simulations` - Create new simulation
-- `GET /api/physics-simulations/:id` - Get specific simulation
+- `GET /api/simulations` - Get all simulations
+- `POST /api/simulations` - Create new simulation
+- `GET /api/simulations/:id` - Get specific simulation
 
 ## 🎨 UI Components
 
@@ -208,42 +166,45 @@ The project uses a comprehensive design system with:
 
 - **Input validation** on all API endpoints
 - **Environment variable** protection for sensitive data
-- **CORS** configuration for secure cross-origin requests
-- **Error handling** with appropriate HTTP status codes
+- **Type-safe** operations with TypeScript and Zod validation
 
-## 📊 Performance
+## 🛠 Development Commands
 
-- **Code splitting** for optimal loading
-- **Image optimization** for faster rendering
-- **Database indexing** for quick queries
-- **Caching strategies** with TanStack Query
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run check` - Type check TypeScript
+- `npm run db:push` - Push database schema changes
 
-## 🐛 Troubleshooting
+## 🤝 Contributing
 
-### Common Issues
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes
+4. Run tests and ensure build passes
+5. Submit a pull request
 
-1. **Database Connection Error**
-   - Ensure `DATABASE_URL` is correctly set
-   - Check PostgreSQL service is running
+## 🔧 Configuration
 
-2. **Build Errors**
-   - Clear `node_modules` and reinstall: `rm -rf node_modules && npm install`
-   - Check TypeScript errors: `npx tsc --noEmit`
+### Database Configuration
+- **Development**: Uses Replit's PostgreSQL instance
+- **Production**: Configure `DATABASE_URL` environment variable
+- **Migrations**: Managed via Drizzle Kit
 
-3. **Port Issues**
-   - Ensure port 5000 is available
-   - Check for conflicting processes
+### Build Configuration
+- **Client Build**: Vite builds to `dist/public`
+- **Server Build**: ESBuild compiles to `dist/index.js`
+- **Static Files**: Served from Express server
+
+## 📈 Features Roadmap
+
+- [ ] Multi-blockchain support (Ethereum, BSC, Polygon)
+- [ ] Advanced trading features (limit orders, stop-loss)
+- [ ] DeFi integration (staking, liquidity pools)
+- [ ] Real-time price feeds
+- [ ] Mobile app development
+- [ ] Advanced audio analysis for token generation
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Team
-
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express, PostgreSQL
-- **Infrastructure**: Replit, Drizzle ORM
-
----
-
-*Built with ❤️ on Replit*

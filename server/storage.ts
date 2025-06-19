@@ -2,8 +2,8 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq } from "drizzle-orm";
-import { audioTracks, physicsSimulations, nftCollections } from "@shared/schema";
-import type { InsertAudioTrack, InsertPhysicsSimulation, InsertNftCollection } from "@shared/schema";
+import { audioTracks, physicsSimulations, cryptoTokens } from "@shared/schema";
+import type { InsertAudioTrack, InsertPhysicsSimulation, InsertCryptoToken } from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
@@ -113,52 +113,52 @@ export const storage = {
     }
   },
 
-  // NFT Collection operations
-  async getAllNFTs() {
+  // Crypto Token operations
+  async getAllCryptoTokens() {
     try {
-      return await db.select().from(nftCollections).orderBy(nftCollections.createdAt);
+      return await db.select().from(cryptoTokens).orderBy(cryptoTokens.createdAt);
     } catch (error) {
-      console.error("Failed to fetch NFT collections:", error);
+      console.error("Failed to fetch crypto tokens:", error);
       throw error;
     }
   },
 
-  async getNFT(id: number) {
+  async getCryptoToken(id: number) {
     try {
-      const result = await db.select().from(nftCollections).where(eq(nftCollections.id, id)).limit(1);
+      const result = await db.select().from(cryptoTokens).where(eq(cryptoTokens.id, id)).limit(1);
       return result[0] || null;
     } catch (error) {
-      console.error(`Failed to fetch NFT collection ${id}:`, error);
+      console.error(`Failed to fetch crypto token ${id}:`, error);
       throw error;
     }
   },
 
-  async createNFT(data: InsertNftCollection) {
+  async createCryptoToken(data: InsertCryptoToken) {
     try {
-      const result = await db.insert(nftCollections).values(data).returning();
+      const result = await db.insert(cryptoTokens).values(data).returning();
       return result[0];
     } catch (error) {
-      console.error("Failed to create NFT collection:", error);
+      console.error("Failed to create crypto token:", error);
       throw error;
     }
   },
 
-  async updateNFT(id: number, data: Partial<InsertNftCollection>) {
+  async updateCryptoToken(id: number, data: Partial<InsertCryptoToken>) {
     try {
-      const result = await db.update(nftCollections).set(data).where(eq(nftCollections.id, id)).returning();
+      const result = await db.update(cryptoTokens).set(data).where(eq(cryptoTokens.id, id)).returning();
       return result[0] || null;
     } catch (error) {
-      console.error(`Failed to update NFT collection ${id}:`, error);
+      console.error(`Failed to update crypto token ${id}:`, error);
       throw error;
     }
   },
 
-  async deleteNFT(id: number) {
+  async deleteCryptoToken(id: number) {
     try {
-      await db.delete(nftCollections).where(eq(nftCollections.id, id));
+      await db.delete(cryptoTokens).where(eq(cryptoTokens.id, id));
       return true;
     } catch (error) {
-      console.error(`Failed to delete NFT collection ${id}:`, error);
+      console.error(`Failed to delete crypto token ${id}:`, error);
       throw error;
     }
   },

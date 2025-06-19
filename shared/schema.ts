@@ -1,3 +1,4 @@
+
 import { pgTable, serial, text, timestamp, integer, decimal, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -30,17 +31,22 @@ export const physicsSimulations = pgTable("physics_simulations", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// NFT Collections Table
-export const nftCollections = pgTable("nft_collections", {
+// Cryptocurrency Tokens Table
+export const cryptoTokens = pgTable("crypto_tokens", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  symbol: text("symbol").notNull(),
   description: text("description"),
-  tokenId: text("token_id").unique(),
+  totalSupply: decimal("total_supply", { precision: 20, scale: 8 }).notNull(),
+  initialPrice: decimal("initial_price", { precision: 10, scale: 8 }).default("0.01"),
   contractAddress: text("contract_address"),
+  blockchain: text("blockchain").default("ethereum"),
+  tokenStandard: text("token_standard").default("ERC-20"),
   metadata: jsonb("metadata"),
   audioTrackId: integer("audio_track_id"),
   physicsSimulationId: integer("physics_simulation_id"),
-  mintedAt: timestamp("minted_at"),
+  isLaunched: boolean("is_launched").default(false),
+  launchedAt: timestamp("launched_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -50,13 +56,13 @@ export const insertAudioTrackSchema = createInsertSchema(audioTracks);
 export const selectAudioTrackSchema = createSelectSchema(audioTracks);
 export const insertPhysicsSimulationSchema = createInsertSchema(physicsSimulations);
 export const selectPhysicsSimulationSchema = createSelectSchema(physicsSimulations);
-export const insertNftCollectionSchema = createInsertSchema(nftCollections);
-export const selectNftCollectionSchema = createSelectSchema(nftCollections);
+export const insertCryptoTokenSchema = createInsertSchema(cryptoTokens);
+export const selectCryptoTokenSchema = createSelectSchema(cryptoTokens);
 
 // TypeScript types
 export type InsertAudioTrack = z.infer<typeof insertAudioTrackSchema>;
 export type AudioTrack = z.infer<typeof selectAudioTrackSchema>;
 export type InsertPhysicsSimulation = z.infer<typeof insertPhysicsSimulationSchema>;
 export type PhysicsSimulation = z.infer<typeof selectPhysicsSimulationSchema>;
-export type InsertNftCollection = z.infer<typeof insertNftCollectionSchema>;
-export type NftCollection = z.infer<typeof selectNftCollectionSchema>;
+export type InsertCryptoToken = z.infer<typeof insertCryptoTokenSchema>;
+export type CryptoToken = z.infer<typeof selectCryptoTokenSchema>;
