@@ -21,6 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Audio Track Routes
+  // Audio Track Routes
   app.get("/api/tracks", async (req, res) => {
     try {
       const tracks = await storage.getAllAudioTracks();
@@ -30,6 +31,228 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch tracks" });
     }
   });
+
+  app.get("/api/tracks/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid track ID" });
+      }
+      const track = await storage.getAudioTrack(id);
+      if (!track) {
+        return res.status(404).json({ message: "Track not found" });
+      }
+      res.json(track);
+    } catch (error) {
+      console.error("Error fetching track:", error);
+      res.status(500).json({ message: "Failed to fetch track" });
+    }
+  });
+
+  app.post("/api/tracks", async (req, res) => {
+    try {
+      const validatedData = insertAudioTrackSchema.parse(req.body);
+      const track = await storage.createAudioTrack(validatedData);
+      res.status(201).json(track);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating track:", error);
+      res.status(500).json({ message: "Failed to create track" });
+    }
+  });
+
+  app.put("/api/tracks/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid track ID" });
+      }
+      const validatedData = insertAudioTrackSchema.partial().parse(req.body);
+      const track = await storage.updateAudioTrack(id, validatedData);
+      if (!track) {
+        return res.status(404).json({ message: "Track not found" });
+      }
+      res.json(track);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating track:", error);
+      res.status(500).json({ message: "Failed to update track" });
+    }
+  });
+
+  app.delete("/api/tracks/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid track ID" });
+      }
+      await storage.deleteAudioTrack(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting track:", error);
+      res.status(500).json({ message: "Failed to delete track" });
+    }
+  });
+
+  // Physics Simulation Routes
+  app.get("/api/simulations", async (req, res) => {
+    try {
+      const simulations = await storage.getAllPhysicsSimulations();
+      res.json(simulations);
+    } catch (error) {
+      console.error("Error fetching simulations:", error);
+      res.status(500).json({ message: "Failed to fetch simulations" });
+    }
+  });
+
+  app.get("/api/simulations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid simulation ID" });
+      }
+      const simulation = await storage.getPhysicsSimulation(id);
+      if (!simulation) {
+        return res.status(404).json({ message: "Simulation not found" });
+      }
+      res.json(simulation);
+    } catch (error) {
+      console.error("Error fetching simulation:", error);
+      res.status(500).json({ message: "Failed to fetch simulation" });
+    }
+  });
+
+  app.post("/api/simulations", async (req, res) => {
+    try {
+      const validatedData = insertPhysicsSimulationSchema.parse(req.body);
+      const simulation = await storage.createPhysicsSimulation(validatedData);
+      res.status(201).json(simulation);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating simulation:", error);
+      res.status(500).json({ message: "Failed to create simulation" });
+    }
+  });
+
+  app.put("/api/simulations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid simulation ID" });
+      }
+      const validatedData = insertPhysicsSimulationSchema.partial().parse(req.body);
+      const simulation = await storage.updatePhysicsSimulation(id, validatedData);
+      if (!simulation) {
+        return res.status(404).json({ message: "Simulation not found" });
+      }
+      res.json(simulation);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating simulation:", error);
+      res.status(500).json({ message: "Failed to update simulation" });
+    }
+  });
+
+  app.delete("/api/simulations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid simulation ID" });
+      }
+      await storage.deletePhysicsSimulation(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting simulation:", error);
+      res.status(500).json({ message: "Failed to delete simulation" });
+    }
+  });
+
+  // NFT Collection Routes
+  app.get("/api/nfts", async (req, res) => {
+    try {
+      const nfts = await storage.getAllNFTs();
+      res.json(nfts);
+    } catch (error) {
+      console.error("Error fetching NFTs:", error);
+      res.status(500).json({ message: "Failed to fetch NFTs" });
+    }
+  });
+
+  app.get("/api/nfts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid NFT ID" });
+      }
+      const nft = await storage.getNFT(id);
+      if (!nft) {
+        return res.status(404).json({ message: "NFT not found" });
+      }
+      res.json(nft);
+    } catch (error) {
+      console.error("Error fetching NFT:", error);
+      res.status(500).json({ message: "Failed to fetch NFT" });
+    }
+  });
+
+  app.post("/api/nfts", async (req, res) => {
+    try {
+      const validatedData = insertNftCollectionSchema.parse(req.body);
+      const nft = await storage.createNFT(validatedData);
+      res.status(201).json(nft);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating NFT:", error);
+      res.status(500).json({ message: "Failed to create NFT" });
+    }
+  });
+
+  app.put("/api/nfts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid NFT ID" });
+      }
+      const validatedData = insertNftCollectionSchema.partial().parse(req.body);
+      const nft = await storage.updateNFT(id, validatedData);
+      if (!nft) {
+        return res.status(404).json({ message: "NFT not found" });
+      }
+      res.json(nft);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating NFT:", error);
+      res.status(500).json({ message: "Failed to update NFT" });
+    }
+  });
+
+  app.delete("/api/nfts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid NFT ID" });
+      }
+      await storage.deleteNFT(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting NFT:", error);
+      res.status(500).json({ message: "Failed to delete NFT" });
+    }
+  });
+
+  return createServer(app);
 
   app.post("/api/tracks", async (req, res) => {
     try {
