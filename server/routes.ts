@@ -8,6 +8,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { blockchainService } from "./blockchain";
 import { insertAudioTrackSchema, insertPhysicsSimulationSchema, insertCryptoTokenSchema, insertCryptoWalletSchema, insertTransactionSchema, insertExchangeOrderSchema } from "@shared/schema";
+import { automationService } from "./automation";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {

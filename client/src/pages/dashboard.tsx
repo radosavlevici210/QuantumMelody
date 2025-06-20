@@ -15,7 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import FinancialDashboard from "../components/crypto-wallet";
-import { Music, BarChart3, Coins, Play, Pause, Upload, Download, TrendingUp, DollarSign } from "lucide-react";
+import AutomationPanel from "../components/automation-panel";
+import DashboardStats from "../components/dashboard-stats";
+import NotificationsCenter from "../components/notifications-center";
+import ActivityFeed from "../components/activity-feed";
+import { Music, BarChart3, Coins, Play, Pause, Upload, Download, TrendingUp, DollarSign, Bot } from "lucide-react";
 import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
 
 export default function Dashboard() {
@@ -153,12 +157,23 @@ export default function Dashboard() {
             Business Management Platform
           </h1>
           <p className="text-lg text-slate-600">
-            Manage audio content, analytics, and digital assets from one dashboard
+            Comprehensive business management with real-time analytics and automation
           </p>
         </div>
 
+        {/* Dashboard Overview Stats */}
+        <div className="mb-8">
+          <DashboardStats />
+        </div>
+
+        {/* Quick Actions and Notifications */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <ActivityFeed />
+          <NotificationsCenter />
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-white shadow-sm">
+          <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
             <TabsTrigger value="audio" className="flex items-center gap-2">
               <Music className="w-4 h-4" />
               Media Content
@@ -174,6 +189,10 @@ export default function Dashboard() {
             <TabsTrigger value="wallet" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
               Financial
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="flex items-center gap-2">
+              <Bot className="w-4 h-4" />
+              Automation
             </TabsTrigger>
           </TabsList>
 
@@ -477,6 +496,10 @@ export default function Dashboard() {
 
           <TabsContent value="wallet" className="space-y-6">
             <FinancialDashboard />
+          </TabsContent>
+
+          <TabsContent value="automation" className="space-y-6">
+            <AutomationPanel />
           </TabsContent>
         </Tabs>
       </div>

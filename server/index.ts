@@ -6,6 +6,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { automationService } from "./automation";
 
 const app = express();
 
@@ -86,6 +87,19 @@ app.use((req, res, next) => {
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
+    // Start automation services
+    automationService.start();
+    
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+      console.log('Shutting down gracefully...');
+      automationService.stop();
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+    
     log(`serving on port ${port}`);
   });
 })();

@@ -43,7 +43,7 @@ export const cryptoTokens = pgTable("crypto_tokens", {
   symbol: text("symbol").notNull(),
   description: text("description"),
   totalSupply: decimal("total_supply", { precision: 20, scale: 8 }).notNull(),
-  initialPrice: decimal("initial_price", { precision: 10, scale: 8 }).default("0.01"),
+  initialPrice: decimal("initial_price", { precision: 15, scale: 8 }).default("0.01"),
   contractAddress: text("contract_address"),
   blockchain: text("blockchain").default("ethereum"),
   tokenStandard: text("token_standard").default("ERC-20"),
