@@ -14,9 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import ParticleBackground from "@/components/particle-background";
 import CryptoWallet from "../components/crypto-wallet";
-import { Music, Zap, Coins, Play, Pause, Upload, Download, Rocket, DollarSign } from "lucide-react";
+import { Music, BarChart3, Coins, Play, Pause, Upload, Download, TrendingUp, DollarSign } from "lucide-react";
 import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
 
 export default function Dashboard() {
@@ -147,85 +146,83 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <ParticleBackground frequency={50} amplitude={30} />
-
-      <div className="relative z-10 container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 font-quantum">
-            Quantum Crypto Universe
+          <h1 className="text-4xl font-bold text-slate-800 mb-2">
+            Business Management Platform
           </h1>
-          <p className="text-lg text-slate-300">
-            Transform audio into quantum physics simulations and launch cryptocurrencies
+          <p className="text-lg text-slate-600">
+            Manage audio content, analytics, and digital assets from one dashboard
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 glassmorphism">
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-sm">
             <TabsTrigger value="audio" className="flex items-center gap-2">
               <Music className="w-4 h-4" />
-              Audio Tracks
+              Media Content
             </TabsTrigger>
             <TabsTrigger value="physics" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              Physics Sims
+              <BarChart3 className="w-4 h-4" />
+              Analytics
             </TabsTrigger>
             <TabsTrigger value="crypto" className="flex items-center gap-2">
               <Coins className="w-4 h-4" />
-              Crypto Tokens
+              Digital Assets
             </TabsTrigger>
             <TabsTrigger value="wallet" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Wallet
+              Financial
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="audio" className="space-y-6">
-            <Card className="glassmorphism">
+            <Card className="bg-white shadow-sm border">
               <CardHeader>
-                <CardTitle className="text-white">Create Audio Track</CardTitle>
-                <CardDescription>Upload and configure your audio tracks</CardDescription>
+                <CardTitle className="text-slate-800">Add Media Content</CardTitle>
+                <CardDescription>Upload and manage your media library</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="title" className="text-white">Title</Label>
+                    <Label htmlFor="title" className="text-slate-700">Title</Label>
                     <Input
                       id="title"
                       value={audioForm.title}
                       onChange={(e) => setAudioForm({ ...audioForm, title: e.target.value })}
-                      placeholder="Track title"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="Content title"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="artist" className="text-white">Artist</Label>
+                    <Label htmlFor="artist" className="text-slate-700">Creator</Label>
                     <Input
                       id="artist"
                       value={audioForm.artist}
                       onChange={(e) => setAudioForm({ ...audioForm, artist: e.target.value })}
-                      placeholder="Artist name"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="Creator name"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="duration" className="text-white">Duration (seconds)</Label>
+                    <Label htmlFor="duration" className="text-slate-700">Duration (seconds)</Label>
                     <Input
                       id="duration"
                       type="number"
                       value={audioForm.duration}
                       onChange={(e) => setAudioForm({ ...audioForm, duration: parseInt(e.target.value) || 0 })}
                       placeholder="Duration"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      className="border-slate-300"
                     />
                   </div>
                 </div>
                 <Button
                   onClick={() => createTrackMutation.mutate(audioForm)}
                   disabled={createTrackMutation.isPending || !audioForm.title || !audioForm.artist}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
                 >
-                  {createTrackMutation.isPending ? "Creating..." : "Create Track"}
+                  {createTrackMutation.isPending ? "Adding..." : "Add Content"}
                 </Button>
               </CardContent>
             </Card>
@@ -233,7 +230,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {tracksLoading
                 ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="glassmorphism">
+                    <Card key={i} className="bg-white shadow-sm border">
                       <CardContent className="pt-6">
                         <Skeleton className="h-4 w-full mb-2" />
                         <Skeleton className="h-4 w-2/3 mb-4" />
@@ -242,16 +239,16 @@ export default function Dashboard() {
                     </Card>
                   ))
                 : tracks?.map((track) => (
-                    <Card key={track.id} className="glassmorphism hover:border-cyan-400/50 transition-colors">
+                    <Card key={track.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
                       <CardHeader>
-                        <CardTitle className="text-white text-lg">{track.title}</CardTitle>
+                        <CardTitle className="text-slate-800 text-lg">{track.title}</CardTitle>
                         <CardDescription>by {track.artist}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="flex justify-between items-center mb-3">
                           <Badge variant="secondary">{track.duration}s</Badge>
                           {track.frequency && (
-                            <Badge variant="outline" className="text-cyan-400">
+                            <Badge variant="outline" className="text-blue-600">
                               {track.frequency}Hz
                             </Badge>
                           )}
@@ -272,41 +269,41 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="physics" className="space-y-6">
-            <Card className="glassmorphism">
+            <Card className="bg-white shadow-sm border">
               <CardHeader>
-                <CardTitle className="text-white">Create Physics Simulation</CardTitle>
-                <CardDescription>Configure quantum particle behaviors</CardDescription>
+                <CardTitle className="text-slate-800">Create Analytics Report</CardTitle>
+                <CardDescription>Generate data analysis and reports</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="sim-name" className="text-white">Simulation Name</Label>
+                    <Label htmlFor="sim-name" className="text-slate-700">Report Name</Label>
                     <Input
                       id="sim-name"
                       value={simulationForm.name}
                       onChange={(e) => setSimulationForm({ ...simulationForm, name: e.target.value })}
-                      placeholder="Simulation name"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="Report name"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="particle-count" className="text-white">Particle Count</Label>
+                    <Label htmlFor="particle-count" className="text-slate-700">Data Points</Label>
                     <Input
                       id="particle-count"
                       type="number"
                       value={simulationForm.particleCount}
                       onChange={(e) => setSimulationForm({ ...simulationForm, particleCount: parseInt(e.target.value) || 1000 })}
                       placeholder="1000"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      className="border-slate-300"
                     />
                   </div>
                 </div>
                 <Button
                   onClick={() => createSimulationMutation.mutate(simulationForm)}
                   disabled={createSimulationMutation.isPending || !simulationForm.name}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                  className="w-full bg-green-600 hover:bg-green-700"
                 >
-                  {createSimulationMutation.isPending ? "Creating..." : "Create Simulation"}
+                  {createSimulationMutation.isPending ? "Generating..." : "Generate Report"}
                 </Button>
               </CardContent>
             </Card>
@@ -314,7 +311,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {simulationsLoading
                 ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="glassmorphism">
+                    <Card key={i} className="bg-white shadow-sm border">
                       <CardContent className="pt-6">
                         <Skeleton className="h-4 w-full mb-2" />
                         <Skeleton className="h-4 w-2/3 mb-4" />
@@ -323,21 +320,21 @@ export default function Dashboard() {
                     </Card>
                   ))
                 : simulations?.map((sim) => (
-                    <Card key={sim.id} className="glassmorphism hover:border-purple-400/50 transition-colors">
+                    <Card key={sim.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
                       <CardHeader>
-                        <CardTitle className="text-white text-lg">{sim.name}</CardTitle>
-                        <CardDescription>Quantum field simulation</CardDescription>
+                        <CardTitle className="text-slate-800 text-lg">{sim.name}</CardTitle>
+                        <CardDescription>Data analysis report</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="flex justify-between items-center mb-3">
-                          <Badge variant="secondary">{sim.particleCount} particles</Badge>
-                          <Badge variant={sim.isActive ? "default" : "outline"} className="text-purple-400">
-                            {sim.isActive ? "Active" : "Inactive"}
+                          <Badge variant="secondary">{sim.particleCount} data points</Badge>
+                          <Badge variant={sim.isActive ? "default" : "outline"} className="text-green-600">
+                            {sim.isActive ? "Active" : "Draft"}
                           </Badge>
                         </div>
                         <Button size="sm" variant="outline" className="w-full">
-                          <Zap className="w-4 h-4 mr-1" />
-                          {sim.isActive ? "Stop" : "Start"} Simulation
+                          <TrendingUp className="w-4 h-4 mr-1" />
+                          {sim.isActive ? "View" : "Generate"} Report
                         </Button>
                       </CardContent>
                     </Card>
@@ -346,46 +343,46 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="crypto" className="space-y-6">
-            <Card className="glassmorphism">
+            <Card className="bg-white shadow-sm border">
               <CardHeader>
-                <CardTitle className="text-white">Create Cryptocurrency Token</CardTitle>
-                <CardDescription>Launch your quantum-powered cryptocurrency</CardDescription>
+                <CardTitle className="text-slate-800">Create Digital Asset</CardTitle>
+                <CardDescription>Manage your digital tokens and assets</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="crypto-name" className="text-white">Token Name</Label>
+                    <Label htmlFor="crypto-name" className="text-slate-700">Asset Name</Label>
                     <Input
                       id="crypto-name"
                       value={cryptoForm.name}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, name: e.target.value })}
-                      placeholder="QuantumCoin"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="Business Token"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="crypto-symbol" className="text-white">Symbol</Label>
+                    <Label htmlFor="crypto-symbol" className="text-slate-700">Symbol</Label>
                     <Input
                       id="crypto-symbol"
                       value={cryptoForm.symbol}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, symbol: e.target.value.toUpperCase() })}
-                      placeholder="QTC"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="BTC"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="crypto-supply" className="text-white">Total Supply</Label>
+                    <Label htmlFor="crypto-supply" className="text-slate-700">Total Supply</Label>
                     <Input
                       id="crypto-supply"
                       type="number"
                       value={cryptoForm.totalSupply}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, totalSupply: e.target.value })}
                       placeholder="1000000"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      className="border-slate-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="crypto-price" className="text-white">Initial Price (USD)</Label>
+                    <Label htmlFor="crypto-price" className="text-slate-700">Initial Price (USD)</Label>
                     <Input
                       id="crypto-price"
                       type="number"
@@ -393,26 +390,26 @@ export default function Dashboard() {
                       value={cryptoForm.initialPrice}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, initialPrice: e.target.value })}
                       placeholder="0.01"
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      className="border-slate-300"
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="crypto-description" className="text-white">Description</Label>
+                    <Label htmlFor="crypto-description" className="text-slate-700">Description</Label>
                     <Input
                       id="crypto-description"
                       value={cryptoForm.description}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, description: e.target.value })}
-                      placeholder="A quantum-powered cryptocurrency..."
-                      className="bg-black/20 border-cyan-500/30 text-white"
+                      placeholder="Digital asset description..."
+                      className="border-slate-300"
                     />
                   </div>
                 </div>
                 <Button
                   onClick={() => createCryptoMutation.mutate(cryptoForm)}
                   disabled={createCryptoMutation.isPending || !cryptoForm.name || !cryptoForm.symbol}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  className="w-full bg-orange-600 hover:bg-orange-700"
                 >
-                  {createCryptoMutation.isPending ? "Creating..." : "Create Token"}
+                  {createCryptoMutation.isPending ? "Creating..." : "Create Asset"}
                 </Button>
               </CardContent>
             </Card>
@@ -420,7 +417,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {cryptoLoading
                 ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="glassmorphism">
+                    <Card key={i} className="bg-white shadow-sm border">
                       <CardContent className="pt-6">
                         <Skeleton className="h-4 w-full mb-2" />
                         <Skeleton className="h-4 w-2/3 mb-4" />
@@ -429,27 +426,27 @@ export default function Dashboard() {
                     </Card>
                   ))
                 : cryptoTokens?.map((token) => (
-                    <Card key={token.id} className="glassmorphism hover:border-green-400/50 transition-colors">
+                    <Card key={token.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
                       <CardHeader>
-                        <CardTitle className="text-white text-lg">{token.name}</CardTitle>
+                        <CardTitle className="text-slate-800 text-lg">{token.name}</CardTitle>
                         <CardDescription>{token.symbol} • {token.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-300">Supply:</span>
+                            <span className="text-sm text-slate-600">Supply:</span>
                             <Badge variant="secondary">{Number(token.totalSupply).toLocaleString()}</Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-300">Price:</span>
-                            <Badge variant="outline" className="text-green-400">
+                            <span className="text-sm text-slate-600">Price:</span>
+                            <Badge variant="outline" className="text-orange-600">
                               ${token.initialPrice}
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-300">Status:</span>
-                            <Badge variant={token.isLaunched ? "default" : "outline"} className="text-green-400">
-                              {token.isLaunched ? "Deployed" : "Draft"}
+                            <span className="text-sm text-slate-600">Status:</span>
+                            <Badge variant={token.isLaunched ? "default" : "outline"} className="text-orange-600">
+                              {token.isLaunched ? "Active" : "Draft"}
                             </Badge>
                           </div>
                           <div className="flex gap-2">
@@ -461,13 +458,13 @@ export default function Dashboard() {
                                 onClick={() => deployTokenMutation.mutate(token.id)}
                                 disabled={deployTokenMutation.isPending}
                               >
-                                <Rocket className="w-4 h-4 mr-1" />
-                                Deploy
+                                <Upload className="w-4 h-4 mr-1" />
+                                Launch
                               </Button>
                             ) : (
                               <Button size="sm" variant="outline" className="flex-1">
                                 <DollarSign className="w-4 h-4 mr-1" />
-                                Trade
+                                Manage
                               </Button>
                             )}
                           </div>
