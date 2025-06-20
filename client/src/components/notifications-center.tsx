@@ -1,20 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Bell, X, Check, AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-import { 
-  Bell, 
-  CheckCircle, 
-  AlertTriangle, 
-  Info,
-  X,
-  MoreHorizontal
-} from 'lucide-react';
 
 interface Notification {
   id: string;
-  type: 'success' | 'warning' | 'info' | 'error';
+  type: 'info' | 'success' | 'warning' | 'error';
   title: string;
   message: string;
   timestamp: Date;
@@ -22,222 +16,234 @@ interface Notification {
   actionUrl?: string;
 }
 
-export default function NotificationsCenter() {
+export const NotificationsCenter: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Simulate real-time notifications
-    const sampleNotifications: Notification[] = [
+    const mockNotifications: Notification[] = [
       {
         id: '1',
         type: 'success',
-        title: 'Asset Deployed Successfully',
-        message: 'Business Token (BIZ) has been deployed to the blockchain',
+        title: 'Wallet Sync Complete',
+        message: 'Successfully synchronized 97 wallets with current blockchain state',
         timestamp: new Date(Date.now() - 5 * 60 * 1000),
         read: false
       },
       {
         id: '2',
         type: 'info',
-        title: 'Daily Report Generated',
-        message: 'Your daily analytics report is ready for review',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        title: 'New Analytics Report',
+        message: 'Q4 Sales Analysis report is ready for review',
+        timestamp: new Date(Date.now() - 15 * 60 * 1000),
         read: false
       },
       {
         id: '3',
         type: 'warning',
-        title: 'Balance Update Required',
-        message: 'Some wallet balances need manual verification',
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+        title: 'High CPU Usage',
+        message: 'System is experiencing high computational load (85% CPU usage)',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000),
         read: true
       },
       {
         id: '4',
         type: 'success',
-        title: 'Media File Uploaded',
-        message: 'Corporate Presentation has been processed successfully',
-        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        title: 'Security Audit Passed',
+        message: 'All security checks completed successfully',
+        timestamp: new Date(Date.now() - 45 * 60 * 1000),
         read: true
       },
       {
         id: '5',
-        type: 'info',
-        title: 'Automation Services Started',
-        message: 'All background automation services are now running',
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        type: 'error',
+        title: 'Connection Issue',
+        message: 'Temporary connection issue with external API (resolved)',
+        timestamp: new Date(Date.now() - 60 * 60 * 1000),
         read: true
       }
     ];
 
-    setNotifications(sampleNotifications);
-    setUnreadCount(sampleNotifications.filter(n => !n.read).length);
+    setNotifications(mockNotifications);
 
     // Simulate new notifications
     const interval = setInterval(() => {
+      const types = ['info', 'success', 'warning'] as const;
       const newNotification: Notification = {
         id: Date.now().toString(),
-        type: ['success', 'info', 'warning'][Math.floor(Math.random() * 3)] as any,
+        type: types[Math.floor(Math.random() * types.length)],
         title: 'System Update',
-        message: 'Background process completed successfully',
+        message: 'Real-time monitoring detected new activity',
         timestamp: new Date(),
         read: false
       };
 
       setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
-      setUnreadCount(prev => prev + 1);
-    }, 2 * 60 * 1000); // Every 2 minutes
+    }, 45000);
 
     return () => clearInterval(interval);
   }, []);
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => 
-      n.id === id ? { ...n, read: true } : n
+    setNotifications(prev => prev.map(notif => 
+      notif.id === id ? { ...notif, read: true } : notif
     ));
-    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
+    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
   };
 
-  const deleteNotification = (id: string) => {
-    const notification = notifications.find(n => n.id === id);
-    setNotifications(prev => prev.filter(n => n.id !== id));
-    if (notification && !notification.read) {
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    }
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id));
   };
 
-  const getIcon = (type: string) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'success': return CheckCircle;
-      case 'warning': return AlertTriangle;
-      case 'error': return AlertTriangle;
-      default: return Info;
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4 text-yellow-400" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-400" />;
+      default:
+        return <Info className="h-4 w-4 text-blue-400" />;
     }
   };
 
-  const getIconColor = (type: string) => {
+  const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'success': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'error': return 'text-red-600';
-      default: return 'text-blue-600';
+      case 'success':
+        return 'border-l-green-500';
+      case 'warning':
+        return 'border-l-yellow-500';
+      case 'error':
+        return 'border-l-red-500';
+      default:
+        return 'border-l-blue-500';
     }
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (timestamp: Date) => {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const diff = now.getTime() - timestamp.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return timestamp.toLocaleDateString();
   };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <Card className="bg-white shadow-sm border">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-slate-800">
-            <Bell className="w-5 h-5" />
-            Notifications
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="ml-2">
-                {unreadCount}
-              </Badge>
-            )}
-          </CardTitle>
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={markAllAsRead}
-            >
-              Mark all read
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-96">
-          <div className="space-y-4">
-            {notifications.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
-                <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No notifications yet</p>
-              </div>
-            ) : (
-              notifications.map((notification) => {
-                const Icon = getIcon(notification.type);
-                const iconColor = getIconColor(notification.type);
-                
-                return (
-                  <div
-                    key={notification.id}
-                    className={`p-4 rounded-lg border transition-colors ${
-                      notification.read 
-                        ? 'bg-slate-50 border-slate-200' 
-                        : 'bg-blue-50 border-blue-200'
-                    }`}
+    <div className="relative">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative text-green-400 border-green-500/20 hover:bg-green-500/10"
+      >
+        <Bell className="h-4 w-4" />
+        {unreadCount > 0 && (
+          <Badge
+            variant="secondary"
+            className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-red-500 text-white border-none"
+          >
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </Badge>
+        )}
+      </Button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 z-50">
+          <Card className="w-80 bg-black/90 border-green-500/20 backdrop-blur-sm">
+            <div className="p-4 border-b border-green-500/20">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">Notifications</h3>
+                <div className="flex items-center space-x-2">
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={markAllAsRead}
+                      className="text-xs text-green-400 hover:text-green-300"
+                    >
+                      <Check className="h-3 w-3 mr-1" />
+                      Mark all read
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-400 hover:text-gray-300"
                   >
-                    <div className="flex items-start gap-3">
-                      <Icon className={`w-5 h-5 mt-0.5 ${iconColor}`} />
-                      <div className="flex-1 min-w-0">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <ScrollArea className="h-96">
+              <div className="p-2">
+                {notifications.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No notifications</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {notifications.map(notification => (
+                      <div
+                        key={notification.id}
+                        className={`
+                          p-3 rounded-lg border-l-2 cursor-pointer transition-colors
+                          ${notification.read ? 'bg-white/5' : 'bg-white/10'}
+                          ${getNotificationColor(notification.type)}
+                          hover:bg-white/15
+                        `}
+                        onClick={() => markAsRead(notification.id)}
+                      >
                         <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className={`text-sm font-medium ${
-                              notification.read ? 'text-slate-700' : 'text-slate-900'
-                            }`}>
-                              {notification.title}
-                            </h4>
-                            <p className={`text-sm mt-1 ${
-                              notification.read ? 'text-slate-500' : 'text-slate-600'
-                            }`}>
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-2">
-                              {formatTime(notification.timestamp)}
-                            </p>
+                          <div className="flex items-start space-x-2 flex-1">
+                            {getNotificationIcon(notification.type)}
+                            <div className="min-w-0 flex-1">
+                              <h4 className={`text-sm font-medium ${notification.read ? 'text-gray-300' : 'text-white'}`}>
+                                {notification.title}
+                              </h4>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {notification.message}
+                              </p>
+                              <span className="text-xs text-gray-500 mt-2 block">
+                                {formatTime(notification.timestamp)}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1 ml-2">
-                            {!notification.read && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => markAsRead(notification.id)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <CheckCircle className="w-4 h-4" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteNotification(notification.id)}
-                              className="h-8 w-8 p-0"
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeNotification(notification.id);
+                            }}
+                            className="h-6 w-6 p-0 text-gray-400 hover:text-gray-300"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                );
-              })
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+                )}
+              </div>
+            </ScrollArea>
+          </Card>
+        </div>
+      )}
+    </div>
   );
-}
+};

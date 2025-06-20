@@ -1,398 +1,153 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Textarea } from './ui/textarea';
-import { Progress } from './ui/progress';
-import { Badge } from './ui/badge';
-import { useToast } from '../hooks/use-toast';
-import { 
-  Upload, 
-  Download, 
-  RefreshCw,
-  FileText,
-  Database,
-  Settings,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
 
-interface BulkOperation {
-  id: string;
-  type: 'import' | 'export' | 'update' | 'backup';
-  name: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  progress: number;
-  itemsProcessed: number;
+import React, { useState } from 'react';
+import { Check, Download, Upload, Trash2, Archive, Settings } from 'lucide-react';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { Checkbox } from './ui/checkbox';
+import { Badge } from './ui/badge';
+import { Progress } from './ui/progress';
+
+interface BulkOperationsProps {
+  selectedItems: string[];
   totalItems: number;
-  startTime?: Date;
-  endTime?: Date;
-  error?: string;
+  onSelectAll: () => void;
+  onDeselectAll: () => void;
+  onOperation: (operation: string, items: string[]) => Promise<void>;
 }
 
-export default function BulkOperations() {
-  const [activeTab, setActiveTab] = useState<'import' | 'export' | 'backup'>('import');
-  const [operations, setOperations] = useState<BulkOperation[]>([]);
-  const [importConfig, setImportConfig] = useState({
-    type: 'media',
-    file: null as File | null,
-    overwrite: false
-  });
-  const [exportConfig, setExportConfig] = useState({
-    type: 'all',
-    format: 'json',
-    dateRange: 'all'
-  });
-  const { toast } = useToast();
+export const BulkOperations: React.FC<BulkOperationsProps> = ({
+  selectedItems,
+  totalItems,
+  onSelectAll,
+  onDeselectAll,
+  onOperation
+}) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentOperation, setCurrentOperation] = useState<string>('');
 
-  const startBulkImport = async () => {
-    if (!importConfig.file) {
-      toast({
-        title: "Error",
-        description: "Please select a file to import",
-        variant: "destructive"
-      });
-      return;
-    }
+  const operations = [
+    { id: 'export', label: 'Export', icon: Download, color: 'blue' },
+    { id: 'backup', label: 'Backup', icon: Archive, color: 'green' },
+    { id: 'sync', label: 'Sync', icon: Upload, color: 'purple' },
+    { id: 'optimize', label: 'Optimize', icon: Settings, color: 'orange' },
+    { id: 'delete', label: 'Delete', icon: Trash2, color: 'red' }
+  ];
 
-    const operationId = `import-${Date.now()}`;
-    const newOperation: BulkOperation = {
-      id: operationId,
-      type: 'import',
-      name: `Import ${importConfig.type} from ${importConfig.file.name}`,
-      status: 'pending',
-      progress: 0,
-      itemsProcessed: 0,
-      totalItems: 100, // Simulate
-      startTime: new Date()
-    };
+  const handleOperation = async (operationId: string) => {
+    if (selectedItems.length === 0) return;
 
-    setOperations(prev => [newOperation, ...prev]);
+    setIsProcessing(true);
+    setCurrentOperation(operationId);
+    setProgress(0);
 
-    // Simulate bulk import process
-    simulateOperation(operationId, 'import');
-  };
-
-  const startBulkExport = async () => {
-    const operationId = `export-${Date.now()}`;
-    const newOperation: BulkOperation = {
-      id: operationId,
-      type: 'export',
-      name: `Export ${exportConfig.type} as ${exportConfig.format.toUpperCase()}`,
-      status: 'pending',
-      progress: 0,
-      itemsProcessed: 0,
-      totalItems: 50, // Simulate
-      startTime: new Date()
-    };
-
-    setOperations(prev => [newOperation, ...prev]);
-    simulateOperation(operationId, 'export');
-  };
-
-  const startBackup = async () => {
-    const operationId = `backup-${Date.now()}`;
-    const newOperation: BulkOperation = {
-      id: operationId,
-      type: 'backup',
-      name: 'Full database backup',
-      status: 'pending',
-      progress: 0,
-      itemsProcessed: 0,
-      totalItems: 200, // Simulate
-      startTime: new Date()
-    };
-
-    setOperations(prev => [newOperation, ...prev]);
-    simulateOperation(operationId, 'backup');
-  };
-
-  const simulateOperation = (operationId: string, type: string) => {
-    const updateProgress = () => {
-      setOperations(prev => prev.map(op => {
-        if (op.id === operationId) {
-          const newProgress = Math.min(op.progress + Math.random() * 15 + 5, 100);
-          const newItemsProcessed = Math.floor((newProgress / 100) * op.totalItems);
-          
-          if (newProgress >= 100) {
-            return {
-              ...op,
-              status: 'completed' as const,
-              progress: 100,
-              itemsProcessed: op.totalItems,
-              endTime: new Date()
-            };
+    try {
+      // Simulate progress
+      const interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
           }
-          
-          return {
-            ...op,
-            status: 'running' as const,
-            progress: newProgress,
-            itemsProcessed: newItemsProcessed
-          };
-        }
-        return op;
-      }));
-    };
+          return prev + 10;
+        });
+      }, 200);
 
-    // Start the operation
-    setTimeout(() => {
-      setOperations(prev => prev.map(op => 
-        op.id === operationId ? { ...op, status: 'running' as const } : op
-      ));
-    }, 500);
-
-    // Update progress periodically
-    const interval = setInterval(() => {
-      setOperations(prev => {
-        const operation = prev.find(op => op.id === operationId);
-        if (!operation || operation.status === 'completed' || operation.status === 'failed') {
-          clearInterval(interval);
-          if (operation?.status === 'completed') {
-            toast({
-              title: "Success",
-              description: `${type} operation completed successfully`,
-            });
-          }
-          return prev;
-        }
-        
-        updateProgress();
-        return prev;
-      });
-    }, 1000);
-  };
-
-  const getOperationIcon = (type: string) => {
-    switch (type) {
-      case 'import': return Upload;
-      case 'export': return Download;
-      case 'backup': return Database;
-      default: return FileText;
+      await onOperation(operationId, selectedItems);
+      
+      clearInterval(interval);
+      setProgress(100);
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        setProgress(0);
+        setCurrentOperation('');
+      }, 1000);
+    } catch (error) {
+      console.error('Bulk operation failed:', error);
+      setIsProcessing(false);
+      setProgress(0);
+      setCurrentOperation('');
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'text-green-600';
-      case 'running': return 'text-blue-600';
-      case 'failed': return 'text-red-600';
-      default: return 'text-slate-600';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return CheckCircle;
-      case 'running': return RefreshCw;
-      case 'failed': return AlertCircle;
-      default: return Settings;
-    }
-  };
+  const isAllSelected = selectedItems.length === totalItems && totalItems > 0;
+  const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < totalItems;
 
   return (
-    <div className="space-y-6">
-      {/* Operation Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Import */}
-        <Card className="bg-white shadow-sm border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-800">
-              <Upload className="w-5 h-5" />
-              Bulk Import
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Data Type</Label>
-              <Select value={importConfig.type} onValueChange={(value) => setImportConfig(prev => ({ ...prev, type: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="media">Media Content</SelectItem>
-                  <SelectItem value="assets">Digital Assets</SelectItem>
-                  <SelectItem value="reports">Analytics Reports</SelectItem>
-                  <SelectItem value="transactions">Transactions</SelectItem>
-                </SelectContent>
-              </Select>
+    <Card className="p-4 bg-black/20 border-green-500/20">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={isAllSelected}
+                onCheckedChange={isAllSelected ? onDeselectAll : onSelectAll}
+                className="border-green-500/50"
+              />
+              <span className="text-sm text-gray-300">
+                {selectedItems.length} of {totalItems} selected
+              </span>
             </div>
             
-            <div>
-              <Label>Import File</Label>
-              <Input
-                type="file"
-                accept=".csv,.json,.xlsx"
-                onChange={(e) => setImportConfig(prev => ({ 
-                  ...prev, 
-                  file: e.target.files?.[0] || null 
-                }))}
-              />
-            </div>
-
-            <Button 
-              onClick={startBulkImport}
-              className="w-full"
-              disabled={!importConfig.file}
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Start Import
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Export */}
-        <Card className="bg-white shadow-sm border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-800">
-              <Download className="w-5 h-5" />
-              Bulk Export
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Data Type</Label>
-              <Select value={exportConfig.type} onValueChange={(value) => setExportConfig(prev => ({ ...prev, type: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Data</SelectItem>
-                  <SelectItem value="media">Media Content</SelectItem>
-                  <SelectItem value="assets">Digital Assets</SelectItem>
-                  <SelectItem value="reports">Analytics Reports</SelectItem>
-                  <SelectItem value="transactions">Transactions</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Format</Label>
-              <Select value={exportConfig.format} onValueChange={(value) => setExportConfig(prev => ({ ...prev, format: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="json">JSON</SelectItem>
-                  <SelectItem value="csv">CSV</SelectItem>
-                  <SelectItem value="xlsx">Excel</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button 
-              onClick={startBulkExport}
-              className="w-full"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Start Export
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Backup */}
-        <Card className="bg-white shadow-sm border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-800">
-              <Database className="w-5 h-5" />
-              Database Backup
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Create a complete backup of all platform data including media files, assets, and transaction history.
-            </p>
-
-            <div className="space-y-2">
-              <Label>Backup includes:</Label>
-              <div className="text-sm text-slate-600 space-y-1">
-                <div>• All media content and metadata</div>
-                <div>• Digital assets and blockchain data</div>
-                <div>• Analytics reports and configurations</div>
-                <div>• User data and permissions</div>
-              </div>
-            </div>
-
-            <Button 
-              onClick={startBackup}
-              className="w-full"
-            >
-              <Database className="w-4 h-4 mr-2" />
-              Create Backup
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Operations History */}
-      <Card className="bg-white shadow-sm border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-800">
-            <Settings className="w-5 h-5" />
-            Recent Operations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {operations.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
-                <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No bulk operations yet</p>
-                <p className="text-sm mt-1">Start an import, export, or backup operation above</p>
-              </div>
-            ) : (
-              operations.map((operation) => {
-                const OperationIcon = getOperationIcon(operation.type);
-                const StatusIcon = getStatusIcon(operation.status);
-                const statusColor = getStatusColor(operation.status);
-                
-                return (
-                  <div key={operation.id} className="p-4 border rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <OperationIcon className="w-5 h-5 text-slate-600 mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-slate-900">{operation.name}</h4>
-                            <div className="flex items-center gap-2 mt-1">
-                              <StatusIcon className={`w-4 h-4 ${statusColor} ${operation.status === 'running' ? 'animate-spin' : ''}`} />
-                              <span className={`text-sm capitalize ${statusColor}`}>
-                                {operation.status}
-                              </span>
-                              <Badge variant="outline">
-                                {operation.itemsProcessed}/{operation.totalItems} items
-                              </Badge>
-                            </div>
-                            
-                            {operation.status === 'running' && (
-                              <div className="mt-3">
-                                <div className="flex items-center justify-between text-sm text-slate-600 mb-1">
-                                  <span>Progress</span>
-                                  <span>{Math.round(operation.progress)}%</span>
-                                </div>
-                                <Progress value={operation.progress} className="h-2" />
-                              </div>
-                            )}
-                            
-                            <div className="text-xs text-slate-400 mt-2">
-                              Started: {operation.startTime?.toLocaleString()}
-                              {operation.endTime && (
-                                <> • Completed: {operation.endTime.toLocaleString()}</>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
+            {selectedItems.length > 0 && (
+              <Badge variant="secondary" className="bg-green-500/10 text-green-400">
+                {selectedItems.length} items
+              </Badge>
             )}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+
+          {isPartiallySelected && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onSelectAll}
+              className="text-green-400 border-green-500/20 hover:bg-green-500/10"
+            >
+              Select All
+            </Button>
+          )}
+        </div>
+
+        {isProcessing && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-300">
+                Processing {currentOperation}...
+              </span>
+              <span className="text-green-400">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        )}
+
+        {selectedItems.length > 0 && !isProcessing && (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {operations.map(operation => {
+              const Icon = operation.icon;
+              return (
+                <Button
+                  key={operation.id}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOperation(operation.id)}
+                  className={`
+                    flex items-center space-x-2 text-xs
+                    ${operation.color === 'red' ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' : ''}
+                    ${operation.color === 'blue' ? 'border-blue-500/20 text-blue-400 hover:bg-blue-500/10' : ''}
+                    ${operation.color === 'green' ? 'border-green-500/20 text-green-400 hover:bg-green-500/10' : ''}
+                    ${operation.color === 'purple' ? 'border-purple-500/20 text-purple-400 hover:bg-purple-500/10' : ''}
+                    ${operation.color === 'orange' ? 'border-orange-500/20 text-orange-400 hover:bg-orange-500/10' : ''}
+                  `}
+                >
+                  <Icon className="h-3 w-3" />
+                  <span>{operation.label}</span>
+                </Button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </Card>
   );
-}
+};

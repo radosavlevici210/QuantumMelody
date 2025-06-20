@@ -1,507 +1,355 @@
+import React, { useState, useEffect } from 'react';
+import { Zap, TrendingUp, Users, Shield, Settings, Search, Filter } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Badge } from '../components/ui/badge';
+import { ParticleBackground } from '../components/particle-background';
+import { CryptoWallet } from '../components/crypto-wallet';
+import { AdvancedSearch } from '../components/advanced-search';
+import { BulkOperations } from '../components/bulk-operations';
+import { ActivityFeed } from '../components/activity-feed';
+import { AutomationPanel } from '../components/automation-panel';
+import { DashboardStats } from '../components/dashboard-stats';
+import { NotificationsCenter } from '../components/notifications-center';
 
-/**
- * This software is not licensed for open-source or commercial usage.
- * Any use of this code is bound by a 51% royalty for past or future use.
- */
-
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
-import FinancialDashboard from "../components/crypto-wallet";
-import AutomationPanel from "../components/automation-panel";
-import DashboardStats from "../components/dashboard-stats";
-import NotificationsCenter from "../components/notifications-center";
-import ActivityFeed from "../components/activity-feed";
-import { Music, BarChart3, Coins, Play, Pause, Upload, Download, TrendingUp, DollarSign, Bot } from "lucide-react";
-import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
+interface SearchFilter {
+  type: string;
+  value: string;
+  label: string;
+}
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("audio");
-  const [audioForm, setAudioForm] = useState({ title: "", artist: "", duration: 0 });
-  const [simulationForm, setSimulationForm] = useState({ name: "", particleCount: 1000 });
-  const [cryptoForm, setCryptoForm] = useState({ 
-    name: "", 
-    symbol: "", 
-    description: "", 
-    totalSupply: "1000000", 
-    initialPrice: "0.01" 
-  });
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [simulations, setSimulations] = useState([]);
+  const [cryptoTokens, setCryptoTokens] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [wallets, setWallets] = useState([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilters, setSearchFilters] = useState<SearchFilter[]>([]);
 
-  // Audio Tracks
-  const { data: tracks, isLoading: tracksLoading } = useQuery<AudioTrack[]>({
-    queryKey: ["tracks"],
-    queryFn: async () => {
-      const response = await fetch("/api/tracks");
-      if (!response.ok) throw new Error("Failed to fetch tracks");
-      return response.json();
-    },
-  });
+  useEffect(() => {
+    fetchAllData();
 
-  const createTrackMutation = useMutation({
-    mutationFn: async (data: typeof audioForm) => {
-      const response = await fetch("/api/tracks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+    // Auto-refresh data every minute
+    const interval = setInterval(fetchAllData, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchAllData = async () => {
+    try {
+      const [tracksRes, simulationsRes, cryptoRes, transactionsRes, walletsRes] = await Promise.all([
+        fetch('/api/tracks'),
+        fetch('/api/simulations'),
+        fetch('/api/crypto'),
+        fetch('/api/transactions'),
+        fetch('/api/wallets')
+      ]);
+
+      setAudioTracks(await tracksRes.json());
+      setSimulations(await simulationsRes.json());
+      setCryptoTokens(await cryptoRes.json());
+      setTransactions(await transactionsRes.json());
+      setWallets(await walletsRes.json());
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleSearch = (query: string, filters: SearchFilter[]) => {
+    setSearchQuery(query);
+    setSearchFilters(filters);
+    // Implement actual search logic here
+    console.log('Search:', query, 'Filters:', filters);
+  };
+
+  const handleBulkOperation = async (operation: string, items: string[]) => {
+    console.log(`Performing ${operation} on`, items);
+    // Simulate operation
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setSelectedItems([]);
+  };
+
+  const handleSelectAll = () => {
+    const allIds = [
+      ...audioTracks.map((track: any) => `track-${track.id}`),
+      ...simulations.map((sim: any) => `sim-${sim.id}`),
+      ...cryptoTokens.map((token: any) => `token-${token.id}`)
+    ];
+    setSelectedItems(allIds);
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedItems([]);
+  };
+
+  const createNewWallet = async () => {
+    try {
+      const response = await fetch('/api/wallets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
       });
-      if (!response.ok) throw new Error("Failed to create track");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tracks"] });
-      setAudioForm({ title: "", artist: "", duration: 0 });
-      toast({ title: "Success", description: "Audio track created successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create track", variant: "destructive" });
-    },
-  });
 
-  // Physics Simulations
-  const { data: simulations, isLoading: simulationsLoading } = useQuery<PhysicsSimulation[]>({
-    queryKey: ["simulations"],
-    queryFn: async () => {
-      const response = await fetch("/api/simulations");
-      if (!response.ok) throw new Error("Failed to fetch simulations");
-      return response.json();
-    },
-  });
+      if (response.ok) {
+        fetchAllData();
+      }
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+    }
+  };
 
-  const createSimulationMutation = useMutation({
-    mutationFn: async (data: typeof simulationForm) => {
-      const response = await fetch("/api/simulations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create simulation");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["simulations"] });
-      setSimulationForm({ name: "", particleCount: 1000 });
-      toast({ title: "Success", description: "Physics simulation created successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create simulation", variant: "destructive" });
-    },
-  });
-
-  // Crypto Tokens
-  const { data: cryptoTokens, isLoading: cryptoLoading } = useQuery<CryptoToken[]>({
-    queryKey: ["crypto"],
-    queryFn: async () => {
-      const response = await fetch("/api/crypto");
-      if (!response.ok) throw new Error("Failed to fetch crypto tokens");
-      return response.json();
-    },
-  });
-
-  const createCryptoMutation = useMutation({
-    mutationFn: async (data: typeof cryptoForm) => {
-      const response = await fetch("/api/crypto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          totalSupply: parseFloat(data.totalSupply),
-          initialPrice: parseFloat(data.initialPrice)
-        }),
-      });
-      if (!response.ok) throw new Error("Failed to create crypto token");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crypto"] });
-      setCryptoForm({ name: "", symbol: "", description: "", totalSupply: "1000000", initialPrice: "0.01" });
-      toast({ title: "Success", description: "Crypto token created successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create crypto token", variant: "destructive" });
-    },
-  });
-
-  const deployTokenMutation = useMutation({
-    mutationFn: async (tokenId: number) => {
-      const response = await fetch("/api/blockchain/deploy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenId }),
-      });
-      if (!response.ok) throw new Error("Failed to deploy token");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crypto"] });
-      toast({ title: "Success", description: "Token deployed to blockchain successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to deploy token", variant: "destructive" });
-    },
-  });
+  const totalItems = audioTracks.length + simulations.length + cryptoTokens.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">
-            Business Management Platform
-          </h1>
-          <p className="text-lg text-slate-600">
-            Comprehensive business management with real-time analytics and automation
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
+      <ParticleBackground />
+
+      <div className="relative z-10 p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              Business Management Platform
+            </h1>
+            <p className="text-gray-400 mt-2">
+              Advanced digital asset management and analytics platform
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <NotificationsCenter />
+            <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">
+              <Zap className="h-3 w-3 mr-1" />
+              Live System
+            </Badge>
+          </div>
         </div>
 
-        {/* Dashboard Overview Stats */}
-        <div className="mb-8">
-          <DashboardStats />
+        {/* Search and Bulk Operations */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <AdvancedSearch onSearch={handleSearch} />
+          </div>
+          <div>
+            <BulkOperations
+              selectedItems={selectedItems}
+              totalItems={totalItems}
+              onSelectAll={handleSelectAll}
+              onDeselectAll={handleDeselectAll}
+              onOperation={handleBulkOperation}
+            />
+          </div>
         </div>
 
-        {/* Quick Actions and Notifications */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ActivityFeed />
-          <NotificationsCenter />
-        </div>
+        {/* Dashboard Stats */}
+        <DashboardStats />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
-            <TabsTrigger value="audio" className="flex items-center gap-2">
-              <Music className="w-4 h-4" />
-              Media Content
-            </TabsTrigger>
-            <TabsTrigger value="physics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="crypto" className="flex items-center gap-2">
-              <Coins className="w-4 h-4" />
-              Digital Assets
-            </TabsTrigger>
-            <TabsTrigger value="wallet" className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              Financial
-            </TabsTrigger>
-            <TabsTrigger value="automation" className="flex items-center gap-2">
-              <Bot className="w-4 h-4" />
-              Automation
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-black/20 border-green-500/20">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="media" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+                  Media
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="blockchain" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+                  Blockchain
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="audio" className="space-y-6">
-            <Card className="bg-white shadow-sm border">
-              <CardHeader>
-                <CardTitle className="text-slate-800">Add Media Content</CardTitle>
-                <CardDescription>Upload and manage your media library</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="title" className="text-slate-700">Title</Label>
-                    <Input
-                      id="title"
-                      value={audioForm.title}
-                      onChange={(e) => setAudioForm({ ...audioForm, title: e.target.value })}
-                      placeholder="Content title"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="artist" className="text-slate-700">Creator</Label>
-                    <Input
-                      id="artist"
-                      value={audioForm.artist}
-                      onChange={(e) => setAudioForm({ ...audioForm, artist: e.target.value })}
-                      placeholder="Creator name"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="duration" className="text-slate-700">Duration (seconds)</Label>
-                    <Input
-                      id="duration"
-                      type="number"
-                      value={audioForm.duration}
-                      onChange={(e) => setAudioForm({ ...audioForm, duration: parseInt(e.target.value) || 0 })}
-                      placeholder="Duration"
-                      className="border-slate-300"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={() => createTrackMutation.mutate(audioForm)}
-                  disabled={createTrackMutation.isPending || !audioForm.title || !audioForm.artist}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  {createTrackMutation.isPending ? "Adding..." : "Add Content"}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tracksLoading
-                ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="bg-white shadow-sm border">
-                      <CardContent className="pt-6">
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-2/3 mb-4" />
-                        <Skeleton className="h-8 w-full" />
-                      </CardContent>
-                    </Card>
-                  ))
-                : tracks?.map((track) => (
-                    <Card key={track.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
-                      <CardHeader>
-                        <CardTitle className="text-slate-800 text-lg">{track.title}</CardTitle>
-                        <CardDescription>by {track.artist}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex justify-between items-center mb-3">
-                          <Badge variant="secondary">{track.duration}s</Badge>
-                          {track.frequency && (
-                            <Badge variant="outline" className="text-blue-600">
-                              {track.frequency}Hz
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1">
-                            <Play className="w-4 h-4 mr-1" />
-                            Play
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="physics" className="space-y-6">
-            <Card className="bg-white shadow-sm border">
-              <CardHeader>
-                <CardTitle className="text-slate-800">Create Analytics Report</CardTitle>
-                <CardDescription>Generate data analysis and reports</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <TabsContent value="overview" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="sim-name" className="text-slate-700">Report Name</Label>
-                    <Input
-                      id="sim-name"
-                      value={simulationForm.name}
-                      onChange={(e) => setSimulationForm({ ...simulationForm, name: e.target.value })}
-                      placeholder="Report name"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="particle-count" className="text-slate-700">Data Points</Label>
-                    <Input
-                      id="particle-count"
-                      type="number"
-                      value={simulationForm.particleCount}
-                      onChange={(e) => setSimulationForm({ ...simulationForm, particleCount: parseInt(e.target.value) || 1000 })}
-                      placeholder="1000"
-                      className="border-slate-300"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={() => createSimulationMutation.mutate(simulationForm)}
-                  disabled={createSimulationMutation.isPending || !simulationForm.name}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                >
-                  {createSimulationMutation.isPending ? "Generating..." : "Generate Report"}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {simulationsLoading
-                ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="bg-white shadow-sm border">
-                      <CardContent className="pt-6">
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-2/3 mb-4" />
-                        <Skeleton className="h-8 w-full" />
-                      </CardContent>
-                    </Card>
-                  ))
-                : simulations?.map((sim) => (
-                    <Card key={sim.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
-                      <CardHeader>
-                        <CardTitle className="text-slate-800 text-lg">{sim.name}</CardTitle>
-                        <CardDescription>Data analysis report</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex justify-between items-center mb-3">
-                          <Badge variant="secondary">{sim.particleCount} data points</Badge>
-                          <Badge variant={sim.isActive ? "default" : "outline"} className="text-green-600">
-                            {sim.isActive ? "Active" : "Draft"}
+                  <Card className="p-6 bg-black/20 border-green-500/20">
+                    <h3 className="text-lg font-semibold text-white mb-4">Media Content</h3>
+                    <div className="space-y-3">
+                      {audioTracks.slice(0, 3).map((track: any) => (
+                        <div key={track.id} className="flex justify-between items-center">
+                          <div>
+                            <p className="text-white font-medium">{track.title}</p>
+                            <p className="text-gray-400 text-sm">{track.artist}</p>
+                          </div>
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-400">
+                            {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}
                           </Badge>
                         </div>
-                        <Button size="sm" variant="outline" className="w-full">
-                          <TrendingUp className="w-4 h-4 mr-1" />
-                          {sim.isActive ? "View" : "Generate"} Report
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-            </div>
-          </TabsContent>
+                      ))}
+                    </div>
+                    <Button variant="outline" className="w-full mt-4 border-green-500/20 text-green-400 hover:bg-green-500/10">
+                      View All Media
+                    </Button>
+                  </Card>
 
-          <TabsContent value="crypto" className="space-y-6">
-            <Card className="bg-white shadow-sm border">
-              <CardHeader>
-                <CardTitle className="text-slate-800">Create Digital Asset</CardTitle>
-                <CardDescription>Manage your digital tokens and assets</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="crypto-name" className="text-slate-700">Asset Name</Label>
-                    <Input
-                      id="crypto-name"
-                      value={cryptoForm.name}
-                      onChange={(e) => setCryptoForm({ ...cryptoForm, name: e.target.value })}
-                      placeholder="Business Token"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="crypto-symbol" className="text-slate-700">Symbol</Label>
-                    <Input
-                      id="crypto-symbol"
-                      value={cryptoForm.symbol}
-                      onChange={(e) => setCryptoForm({ ...cryptoForm, symbol: e.target.value.toUpperCase() })}
-                      placeholder="BTC"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="crypto-supply" className="text-slate-700">Total Supply</Label>
-                    <Input
-                      id="crypto-supply"
-                      type="number"
-                      value={cryptoForm.totalSupply}
-                      onChange={(e) => setCryptoForm({ ...cryptoForm, totalSupply: e.target.value })}
-                      placeholder="1000000"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="crypto-price" className="text-slate-700">Initial Price (USD)</Label>
-                    <Input
-                      id="crypto-price"
-                      type="number"
-                      step="0.001"
-                      value={cryptoForm.initialPrice}
-                      onChange={(e) => setCryptoForm({ ...cryptoForm, initialPrice: e.target.value })}
-                      placeholder="0.01"
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="crypto-description" className="text-slate-700">Description</Label>
-                    <Input
-                      id="crypto-description"
-                      value={cryptoForm.description}
-                      onChange={(e) => setCryptoForm({ ...cryptoForm, description: e.target.value })}
-                      placeholder="Digital asset description..."
-                      className="border-slate-300"
-                    />
-                  </div>
+                  <Card className="p-6 bg-black/20 border-green-500/20">
+                    <h3 className="text-lg font-semibold text-white mb-4">Analytics Reports</h3>
+                    <div className="space-y-3">
+                      {simulations.slice(0, 3).map((sim: any) => (
+                        <div key={sim.id} className="flex justify-between items-center">
+                          <div>
+                            <p className="text-white font-medium">{sim.name}</p>
+                            <p className="text-gray-400 text-sm">{sim.particleCount} particles</p>
+                          </div>
+                          <Badge variant="outline" className={
+                            sim.isActive 
+                              ? "bg-green-500/10 text-green-400" 
+                              : "bg-gray-500/10 text-gray-400"
+                          }>
+                            {sim.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="outline" className="w-full mt-4 border-green-500/20 text-green-400 hover:bg-green-500/10">
+                      View All Reports
+                    </Button>
+                  </Card>
                 </div>
-                <Button
-                  onClick={() => createCryptoMutation.mutate(cryptoForm)}
-                  disabled={createCryptoMutation.isPending || !cryptoForm.name || !cryptoForm.symbol}
-                  className="w-full bg-orange-600 hover:bg-orange-700"
-                >
-                  {createCryptoMutation.isPending ? "Creating..." : "Create Asset"}
-                </Button>
-              </CardContent>
-            </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {cryptoLoading
-                ? Array.from({ length: 6 }, (_, i) => (
-                    <Card key={i} className="bg-white shadow-sm border">
-                      <CardContent className="pt-6">
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-2/3 mb-4" />
-                        <Skeleton className="h-8 w-full" />
-                      </CardContent>
-                    </Card>
-                  ))
-                : cryptoTokens?.map((token) => (
-                    <Card key={token.id} className="bg-white shadow-sm border hover:shadow-md transition-shadow">
-                      <CardHeader>
-                        <CardTitle className="text-slate-800 text-lg">{token.name}</CardTitle>
-                        <CardDescription>{token.symbol} • {token.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-600">Supply:</span>
-                            <Badge variant="secondary">{Number(token.totalSupply).toLocaleString()}</Badge>
+                <Card className="p-6 bg-black/20 border-green-500/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">Digital Assets</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {cryptoTokens.map((token: any) => (
+                      <div key={token.id} className="p-4 rounded-lg bg-white/5 border border-green-500/10">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="text-white font-medium">{token.name}</h4>
+                            <p className="text-gray-400 text-sm">{token.symbol}</p>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-600">Price:</span>
-                            <Badge variant="outline" className="text-orange-600">
-                              ${token.initialPrice}
-                            </Badge>
+                          <Badge variant="outline" className={
+                            token.isLaunched 
+                              ? "bg-green-500/10 text-green-400" 
+                              : "bg-yellow-500/10 text-yellow-400"
+                          }>
+                            {token.isLaunched ? 'Live' : 'Pending'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-3">{token.description}</p>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Supply:</span>
+                            <span className="text-white">{Number(token.totalSupply).toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-600">Status:</span>
-                            <Badge variant={token.isLaunched ? "default" : "outline"} className="text-orange-600">
-                              {token.isLaunched ? "Active" : "Draft"}
-                            </Badge>
-                          </div>
-                          <div className="flex gap-2">
-                            {!token.isLaunched ? (
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="flex-1"
-                                onClick={() => deployTokenMutation.mutate(token.id)}
-                                disabled={deployTokenMutation.isPending}
-                              >
-                                <Upload className="w-4 h-4 mr-1" />
-                                Launch
-                              </Button>
-                            ) : (
-                              <Button size="sm" variant="outline" className="flex-1">
-                                <DollarSign className="w-4 h-4 mr-1" />
-                                Manage
-                              </Button>
-                            )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Price:</span>
+                            <span className="text-green-400">${Number(token.initialPrice).toFixed(4)}</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-            </div>
-          </TabsContent>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4 border-green-500/20 text-green-400 hover:bg-green-500/10"
+                  >
+                    Manage Digital Assets
+                  </Button>
+                </Card>
+              </TabsContent>
 
-          <TabsContent value="wallet" className="space-y-6">
-            <FinancialDashboard />
-          </TabsContent>
+              <TabsContent value="media">
+                <Card className="p-6 bg-black/20 border-green-500/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">Media Content Library</h3>
+                  <div className="space-y-4">
+                    {audioTracks.map((track: any) => (
+                      <div key={track.id} className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">{track.title.charAt(0)}</span>
+                          </div>
+                          <div>
+                            <h4 className="text-white font-medium">{track.title}</h4>
+                            <p className="text-gray-400 text-sm">{track.artist}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-400">
+                            {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="text-green-400">
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </TabsContent>
 
-          <TabsContent value="automation" className="space-y-6">
+              <TabsContent value="analytics">
+                <Card className="p-6 bg-black/20 border-green-500/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">Analytics & Simulations</h3>
+                  <div className="space-y-4">
+                    {simulations.map((sim: any) => (
+                      <div key={sim.id} className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                            <TrendingUp className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-white font-medium">{sim.name}</h4>
+                            <p className="text-gray-400 text-sm">{sim.particleCount} particles - {sim.quantumField}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline" className={
+                            sim.isActive 
+                              ? "bg-green-500/10 text-green-400" 
+                              : "bg-gray-500/10 text-gray-400"
+                          }>
+                            {sim.isActive ? 'Running' : 'Stopped'}
+                          </Badge>
+                          <Button variant="ghost" size="sm" className="text-green-400">
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="blockchain">
+                <div className="space-y-6">
+                  <CryptoWallet 
+                    wallets={wallets}
+                    transactions={transactions}
+                    onCreateWallet={createNewWallet}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
             <AutomationPanel />
-          </TabsContent>
-        </Tabs>
+            <ActivityFeed />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <Card className="p-4 bg-black/20 border-green-500/20">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <p className="text-gray-400 text-sm">
+              © 2025 Ervin Remus Radosavlevici. All Rights Reserved.
+            </p>
+            <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <span>System Status: </span>
+              <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">
+                <Shield className="h-3 w-3 mr-1" />
+                Operational
+              </Badge>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

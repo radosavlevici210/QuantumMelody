@@ -1,251 +1,187 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Clock, User, Activity, TrendingUp, Zap, Shield } from 'lucide-react';
+import { Card } from './ui/card';
 import { Badge } from './ui/badge';
-import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { 
-  Activity,
-  Upload,
-  Download,
-  DollarSign,
-  FileText,
-  Settings,
-  Users,
-  TrendingUp
-} from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 interface ActivityItem {
   id: string;
-  type: 'upload' | 'transaction' | 'report' | 'system' | 'user' | 'asset';
+  type: 'creation' | 'modification' | 'transaction' | 'system' | 'security';
   title: string;
   description: string;
   timestamp: Date;
   user?: string;
-  amount?: string;
-  status: 'success' | 'pending' | 'failed';
+  metadata?: Record<string, any>;
 }
 
-export default function ActivityFeed() {
+export const ActivityFeed: React.FC = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Generate sample activity data
-    const sampleActivities: ActivityItem[] = [
+    // Simulate real-time activity feed
+    const mockActivities: ActivityItem[] = [
       {
         id: '1',
-        type: 'asset',
-        title: 'Digital Asset Created',
-        description: 'Business Token (BIZ) was successfully created',
+        type: 'creation',
+        title: 'New Crypto Token Created',
+        description: 'Business Token (BIZ) created with 1,000,000 total supply',
         timestamp: new Date(Date.now() - 5 * 60 * 1000),
-        user: 'Admin',
-        amount: '$50,000.00',
-        status: 'success'
+        user: 'System',
+        metadata: { tokenId: 1, symbol: 'BIZ' }
       },
       {
         id: '2',
-        type: 'upload',
-        title: 'Media File Uploaded',
-        description: 'Corporate Presentation added to media library',
+        type: 'transaction',
+        title: 'Wallet Balance Updated',
+        description: '97 wallets synchronized with current market prices',
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
-        user: 'Marketing Team',
-        status: 'success'
+        user: 'Automation',
+        metadata: { walletsCount: 97 }
       },
       {
         id: '3',
-        type: 'report',
-        title: 'Analytics Report Generated',
-        description: 'Q4 Sales Analysis completed with 5,000 data points',
+        type: 'system',
+        title: 'Physics Simulation Started',
+        description: 'Q4 Sales Analysis simulation with 1000 particles',
         timestamp: new Date(Date.now() - 30 * 60 * 1000),
-        user: 'System',
-        status: 'success'
+        user: 'Analytics Engine',
+        metadata: { simulationId: 1 }
       },
       {
         id: '4',
-        type: 'system',
-        title: 'Automation Service Started',
-        description: 'Background services initialized successfully',
+        type: 'security',
+        title: 'Security Audit Completed',
+        description: 'All systems passed security validation checks',
         timestamp: new Date(Date.now() - 45 * 60 * 1000),
-        user: 'System',
-        status: 'success'
+        user: 'Security Monitor',
+        metadata: { status: 'passed' }
       },
       {
         id: '5',
-        type: 'transaction',
-        title: 'Wallet Balance Updated',
-        description: 'Blockchain synchronization completed',
-        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
-        user: 'System',
-        status: 'success'
-      },
-      {
-        id: '6',
-        type: 'user',
-        title: 'User Session Started',
-        description: 'New user session initiated',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        user: 'Admin',
-        status: 'success'
+        type: 'modification',
+        title: 'Media Content Updated',
+        description: 'Corporate Presentation track optimized for better performance',
+        timestamp: new Date(Date.now() - 60 * 60 * 1000),
+        user: 'Content Manager',
+        metadata: { trackId: 1 }
       }
     ];
 
-    setActivities(sampleActivities);
-    setLoading(false);
+    setActivities(mockActivities);
 
-    // Simulate real-time activity updates
+    // Simulate new activities every 30 seconds
     const interval = setInterval(() => {
       const newActivity: ActivityItem = {
         id: Date.now().toString(),
-        type: ['system', 'report', 'asset'][Math.floor(Math.random() * 3)] as any,
-        title: 'System Activity',
-        description: 'Background process completed',
+        type: ['creation', 'modification', 'transaction', 'system'][Math.floor(Math.random() * 4)] as any,
+        title: 'Real-time Update',
+        description: 'System monitoring detected new activity',
         timestamp: new Date(),
-        user: 'System',
-        status: 'success'
+        user: 'Real-time Monitor'
       };
 
       setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
-    }, 3 * 60 * 1000); // Every 3 minutes
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const getIcon = (type: string) => {
+  const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'upload': return Upload;
-      case 'transaction': return DollarSign;
-      case 'report': return FileText;
-      case 'system': return Settings;
-      case 'user': return Users;
-      case 'asset': return TrendingUp;
-      default: return Activity;
+      case 'creation':
+        return <TrendingUp className="h-4 w-4 text-green-400" />;
+      case 'modification':
+        return <Activity className="h-4 w-4 text-blue-400" />;
+      case 'transaction':
+        return <Zap className="h-4 w-4 text-yellow-400" />;
+      case 'system':
+        return <Activity className="h-4 w-4 text-purple-400" />;
+      case 'security':
+        return <Shield className="h-4 w-4 text-red-400" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-400" />;
     }
   };
 
-  const getIconColor = (type: string) => {
+  const getActivityBadgeColor = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'upload': return 'text-blue-600 bg-blue-50';
-      case 'transaction': return 'text-green-600 bg-green-50';
-      case 'report': return 'text-purple-600 bg-purple-50';
-      case 'system': return 'text-orange-600 bg-orange-50';
-      case 'user': return 'text-indigo-600 bg-indigo-50';
-      case 'asset': return 'text-emerald-600 bg-emerald-50';
-      default: return 'text-slate-600 bg-slate-50';
+      case 'creation':
+        return 'bg-green-500/10 text-green-400 border-green-500/20';
+      case 'modification':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'transaction':
+        return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+      case 'system':
+        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case 'security':
+        return 'bg-red-500/10 text-red-400 border-red-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-slate-100 text-slate-800';
-    }
-  };
-
-  const formatTime = (date: Date) => {
+  const formatTime = (timestamp: Date) => {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const diff = now.getTime() - timestamp.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
 
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return timestamp.toLocaleDateString();
   };
-
-  if (loading) {
-    return (
-      <Card className="bg-white shadow-sm border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-800">
-            <Activity className="w-5 h-5" />
-            Recent Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 animate-pulse">
-                <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
-    <Card className="bg-white shadow-sm border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-800">
-          <Activity className="w-5 h-5" />
-          Recent Activity
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-96">
-          <div className="space-y-4">
-            {activities.map((activity) => {
-              const Icon = getIcon(activity.type);
-              const iconColors = getIconColor(activity.type);
-              
-              return (
-                <div key={activity.id} className="flex items-start gap-3">
-                  <div className={`p-2 rounded-full ${iconColors}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-slate-900">
-                          {activity.title}
-                        </h4>
-                        <p className="text-sm text-slate-600 mt-1">
-                          {activity.description}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          {activity.user && (
-                            <div className="flex items-center gap-1">
-                              <Avatar className="w-4 h-4">
-                                <AvatarFallback className="text-xs">
-                                  {activity.user.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs text-slate-500">
-                                {activity.user}
-                              </span>
-                            </div>
-                          )}
-                          <span className="text-xs text-slate-400">
-                            {formatTime(activity.timestamp)}
-                          </span>
-                          {activity.amount && (
-                            <Badge variant="outline" className="text-xs">
-                              {activity.amount}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <Badge 
-                        variant="secondary"
-                        className={`ml-2 ${getStatusColor(activity.status)}`}
-                      >
-                        {activity.status}
-                      </Badge>
-                    </div>
-                  </div>
+    <Card className="p-4 bg-black/20 border-green-500/20">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-white">Activity Feed</h3>
+        <Badge variant="secondary" className="bg-green-500/10 text-green-400">
+          Live
+        </Badge>
+      </div>
+
+      <ScrollArea className="h-96">
+        <div className="space-y-3">
+          {activities.map(activity => (
+            <div
+              key={activity.id}
+              className="flex items-start space-x-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-green-500/20 text-green-400 text-xs">
+                  {getActivityIcon(activity.type)}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="text-sm font-medium text-white truncate">
+                    {activity.title}
+                  </h4>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${getActivityBadgeColor(activity.type)}`}
+                  >
+                    {activity.type}
+                  </Badge>
                 </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
-      </CardContent>
+
+                <p className="text-xs text-gray-400 mb-2">
+                  {activity.description}
+                </p>
+
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span>{activity.user}</span>
+                  <span>{formatTime(activity.timestamp)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
-}
+};
