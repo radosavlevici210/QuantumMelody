@@ -109,7 +109,10 @@ export const insertAudioTrackSchema = createInsertSchema(audioTracks);
 export const selectAudioTrackSchema = createSelectSchema(audioTracks);
 export const insertPhysicsSimulationSchema = createInsertSchema(physicsSimulations);
 export const selectPhysicsSimulationSchema = createSelectSchema(physicsSimulations);
-export const insertCryptoTokenSchema = createInsertSchema(cryptoTokens);
+export const insertCryptoTokenSchema = createInsertSchema(cryptoTokens, {
+  totalSupply: z.coerce.number().positive(),
+  initialPrice: z.coerce.number().positive().optional()
+});
 export const selectCryptoTokenSchema = createSelectSchema(cryptoTokens);
 export const insertCryptoWalletSchema = createInsertSchema(cryptoWallets);
 export const selectCryptoWalletSchema = createSelectSchema(cryptoWallets);

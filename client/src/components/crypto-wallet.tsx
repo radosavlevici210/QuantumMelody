@@ -62,7 +62,7 @@ interface CryptoToken {
   blockchain: string;
 }
 
-export default function CryptoWallet() {
+export default function FinancialDashboard() {
   const [wallets, setWallets] = useState<CryptoWallet[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orders, setOrders] = useState<ExchangeOrder[]>([]);

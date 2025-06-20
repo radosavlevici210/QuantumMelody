@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import CryptoWallet from "../components/crypto-wallet";
+import FinancialDashboard from "../components/crypto-wallet";
 import { Music, BarChart3, Coins, Play, Pause, Upload, Download, TrendingUp, DollarSign } from "lucide-react";
 import type { AudioTrack, PhysicsSimulation, CryptoToken } from "@shared/schema";
 
@@ -476,7 +476,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="wallet" className="space-y-6">
-            <CryptoWallet />
+            <FinancialDashboard />
           </TabsContent>
         </Tabs>
       </div>

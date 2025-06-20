@@ -209,7 +209,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/crypto", async (req, res) => {
     try {
-      const validatedData = insertCryptoTokenSchema.parse(req.body);
+      // Transform string numbers to actual numbers
+      const transformedBody = {
+        ...req.body,
+        totalSupply: parseFloat(req.body.totalSupply),
+        initialPrice: req.body.initialPrice ? parseFloat(req.body.initialPrice) : 0.01
+      };
+      
+      const validatedData = insertCryptoTokenSchema.parse(transformedBody);
       const token = await storage.createCryptoToken(validatedData);
       res.status(201).json(token);
     } catch (error) {
