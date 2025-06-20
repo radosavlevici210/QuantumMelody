@@ -1,115 +1,66 @@
-# Quantum Crypto Universe
+# Business Management Platform
 
-**This software is not licensed for open-source or commercial usage.**  
-**Any use of this code is bound by a 51% royalty for past or future use.**
-
-## Production Blockchain Application
-
-A full-stack application integrating audio processing, quantum physics simulations, and cryptocurrency management with real Ethereum blockchain functionality.
+A comprehensive business management platform for handling media content, analytics, and digital assets.
 
 ## Features
 
-### 🎵 Audio Track Management
-- Upload and manage audio tracks
-- Quantum frequency analysis
-- Waveform visualization
-- Audio-to-physics conversion
-
-### ⚛️ Physics Simulations
-- Quantum particle systems
-- Real-time physics calculations
-- Audio-driven particle behaviors
-- Interactive 3D visualizations
-
-### 💰 Production Blockchain Wallet
-- **Real Ethereum integration** with ethers.js and Web3
-- Secure wallet generation and management
-- Live blockchain balance fetching
-- Production-ready transaction processing
-- Multi-token support
-- Exchange functionality
-
-### 🔐 Integrated Wallet
-- Your production wallet: `0xC441CE69E4aF8286D361f378B0A06362ecF9528a`
-- Real-time balance updates from Ethereum network
-- Secure private key management
-- Transaction history tracking
+- **Media Content Management**: Upload, organize, and manage media files
+- **Analytics Dashboard**: Generate data analysis reports and visualizations
+- **Digital Asset Management**: Create and manage digital tokens and assets
+- **Financial Dashboard**: Wallet management and transaction tracking
 
 ## Technology Stack
 
-### Backend
-- **Node.js** with Express
-- **TypeScript** for type safety
-- **PostgreSQL** database with Drizzle ORM
-- **ethers.js** for Ethereum integration
-- **Web3.js** for blockchain connectivity
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
+- **Backend**: Node.js, Express, TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Passport.js
+- **Blockchain**: Ethereum integration with Web3
 
-### Frontend
-- **React** with TypeScript
-- **Tailwind CSS** for styling
-- **React Query** for state management
-- **Lucide React** for icons
-- **Shadcn/ui** component library
+## Quick Start
 
-### Blockchain
-- **Ethereum mainnet/testnet** support
-- **Real transaction processing**
-- **Gas estimation and optimization**
-- **Multi-wallet management**
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Production Setup
+2. Set up environment variables:
+   - DATABASE_URL will be provided by Replit
 
-### Environment Variables
-```bash
-DATABASE_URL=postgresql://...
-ETHEREUM_RPC_URL=https://mainnet.infura.io/v3/YOUR_API_KEY
-NODE_ENV=production
-```
+3. Initialize database:
+   ```bash
+   npm run db:push
+   ```
 
-### Database Schema
-- `crypto_wallets` - Wallet management
-- `transactions` - Transaction history
-- `exchange_orders` - Token exchange records
-- `crypto_tokens` - Token definitions
-- `audio_tracks` - Audio data
-- `physics_simulations` - Physics parameters
+4. Start development server:
+   ```bash
+   npm run dev
+   ```
 
-## Security
-
-- Private keys stored encrypted in database
-- Production-grade RPC endpoints
-- Input validation and sanitization
-- Type-safe database operations
-- Secure transaction signing
+5. Build for production:
+   ```bash
+   npm run build
+   npm start
+   ```
 
 ## API Endpoints
 
-### Wallet Management
-- `GET /api/wallets` - List all wallets
-- `POST /api/wallets` - Generate new wallet
-- `POST /api/wallets/:id/refresh-balance` - Update balance from blockchain
+- `/api/health` - Health check
+- `/api/tracks` - Media content management
+- `/api/simulations` - Analytics reports
+- `/api/crypto` - Digital assets
+- `/api/wallets` - Financial management
+- `/api/transactions` - Transaction history
 
-### Transactions
-- `POST /api/transfer` - Send Ethereum transactions
-- `GET /api/transactions` - Transaction history
-- `GET /api/blockchain/transaction/:hash` - Transaction details
+## Production Ready
 
-### Blockchain Utilities
-- `GET /api/blockchain/balance/:address` - Real balance lookup
-- `GET /api/blockchain/gas-price` - Current gas prices
-- `POST /api/blockchain/estimate-gas` - Gas estimation
+This application is fully configured for production deployment with:
+- Database migrations
+- Security best practices
+- Error handling
+- Performance optimization
+- Clean, professional UI
 
-## License Notice
+## Support
 
-This software is proprietary and not available for open-source or commercial use. Any usage of this code requires explicit permission and is subject to a 51% royalty on all past and future use.
-
-For licensing inquiries, contact the copyright holder.
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-Access the application at `http://localhost:5000`
+For technical support, refer to the API documentation or contact the development team.

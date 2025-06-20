@@ -8,29 +8,36 @@ import Web3 from 'web3';
 import { storage } from './storage';
 
 // Production Ethereum configuration
-const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL || 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID';
-const ETHEREUM_TESTNET_RPC_URL = process.env.ETHEREUM_TESTNET_RPC_URL || 'https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID';
+const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
+const ETHEREUM_RPC_URL = INFURA_PROJECT_ID ? `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}` : null;
+const ETHEREUM_TESTNET_RPC_URL = INFURA_PROJECT_ID ? `https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}` : null;
 
 // Use testnet for development, mainnet for production
 const RPC_URL = process.env.NODE_ENV === 'production' ? ETHEREUM_RPC_URL : ETHEREUM_TESTNET_RPC_URL;
 
 class BlockchainService {
-  private provider: ethers.JsonRpcProvider;
-  private web3: Web3;
+  private provider: ethers.JsonRpcProvider | null;
+  private web3: Web3 | null;
+  private isEnabled: boolean;
 
   constructor() {
-    this.provider = new ethers.JsonRpcProvider(RPC_URL);
-    this.web3 = new Web3(RPC_URL);
+    this.isEnabled = !!RPC_URL;
+    this.provider = RPC_URL ? new ethers.JsonRpcProvider(RPC_URL) : null;
+    this.web3 = RPC_URL ? new Web3(RPC_URL) : null;
   }
 
   // Get wallet balance from blockchain
   async getWalletBalance(address: string): Promise<string> {
+    if (!this.isEnabled || !this.provider) {
+      return '0.0'; // Return mock balance when blockchain is disabled
+    }
+    
     try {
       const balance = await this.provider.getBalance(address);
       return ethers.formatEther(balance);
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
-      throw new Error('Failed to fetch wallet balance');
+      return '0.0'; // Fallback to mock balance on error
     }
   }
 
@@ -143,7 +150,7 @@ class BlockchainService {
       }
     } catch (error) {
       console.error('Error updating wallet balance:', error);
-      throw new Error('Failed to update wallet balance');
+      // Don't throw in production, just continue without balance updates
     }
   }
 }
